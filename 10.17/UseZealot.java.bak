@@ -1,0 +1,76 @@
+class Zealot{
+	private String brood;
+	private String roll;
+	private String weapon;
+	private int damage;
+	private int hp;
+	private int speed;
+
+	public String getBrood(){
+		return brood;
+	}
+	public String getRoll(){
+		return roll;
+	}
+	public String getWeapon(){
+		return weapon;
+	}
+	public int getDamage(){
+		return damage;
+	}
+	public int getHp(){
+		return hp;
+	}
+	public int getSpeed(){
+		return speed;
+	}
+
+	public void setBrood(String brood){
+		this.brood = brood;
+	}
+	public void setRoll(String roll){
+		this.roll = roll;
+	}
+	public void setWeapon(String weapon){
+		this.weapon = weapon;
+	}
+	public void setDamage(int damage){
+		this.damage = damage;
+	}
+	public void setHp(int hp){
+		this.hp = hp;
+	}
+	public void setSpeed(int speed){
+		this.speed = speed;
+	}
+
+	public String toString() {
+		String info = "종족 : " + brood + "\n";
+		info += "역할 : " + roll + "\n";
+		info += "무기는 : " + weapon + "\n";
+		info += "데미지는 : " + damage + "\n";
+		info += "체력은 : " + hp + "\n";
+		info += "이동속도 : "+speed+"\n";
+		return info;
+	}
+
+	public Zealot(String brood,String roll,String waepon,int damage,int hp,int speed){
+		setBrood("protos");
+		setRoll("worrior");
+		setWeapon("sword");
+		setDamage(30);
+		setHp(100);
+		setSpeed(1);
+	}
+
+}
+
+class UseZealot{
+	public static void main(String[] args){
+
+		Zealot z1 = new Zealot();
+		System.out.println(z1);
+
+
+	}
+}

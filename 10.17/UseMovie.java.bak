@@ -1,0 +1,57 @@
+class Movie{
+	private boolean is19=false;
+	private String name;
+	private int score;
+	private String supervision;
+	private int year;
+
+	public boolean getIs19(){
+		return is19;
+	}
+	public String getName(){
+		return name;
+	}
+	public int getScore(){
+		return score;
+	}
+	public String getsupervision(){
+		return supervision;
+	}	
+	public int getYear(){
+		return year;
+	}
+	public boolean isIs19(){
+		return is19;
+	}
+	public String setName(String newName){
+		return name = newName;
+	}
+	public int setScore(int newScore){
+		return score = newScore;
+	}
+	public String setsupervision(String newsupervision){
+		return supervision = newsupervision;
+	}
+	public int setYear(int newYear){
+		return year = newYear;
+	}
+	public boolean setIs19(boolean newIs19){
+		return is19 = newIs19;
+	}
+
+	public void print(){
+		System.out.printf("영화의 제목은 %s이고 감독은 %s이며 %d년도에 제작되어 %d점을 얻었다\n",name,supervision,year,score);
+		System.out.println("청불요소 :" + is19 );
+	}
+}
+public class UseMovie{
+	public static void main(String[] args){
+		Movie m1 = new Movie();
+		m1.setName("고양이");
+		m1.setScore(100);
+		m1.setsupervision("성빈");
+		m1.setYear(2025);
+		m1.setIs19(false);
+		m1.print();
+	}
+}

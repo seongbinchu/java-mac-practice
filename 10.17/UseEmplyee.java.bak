@@ -1,0 +1,41 @@
+class Emplyee{
+	private String name;
+	private String num;
+	private int pay;
+
+	public void setName(String name){
+		this.name = name;
+	}
+	public void setPay(int pay){
+		if(pay>=2200 && pay<=9000){
+			this.pay = pay;
+		}else{
+			System.out.println("Á¸ÀçÇÏÁö ¾Ê´Â ¿¬ºÀ");
+		}
+	}
+	public void setNum(String num){
+		this.num = num;
+	}
+	public String getName(){
+		return name;
+	}
+	public String getNum(){
+		return num;
+	}
+	public int getPay(){
+		return pay;
+	}
+
+	
+}
+
+class UseEmplyee{
+	public static void main(String[] args){
+		Emplyee e = new Emplyee();
+		e.setName("¼ººó");
+		e.setNum("010-8820-9083");
+		e.setPay(8800);
+		e.getName();
+		System.out.println(e.getName());
+	}
+}

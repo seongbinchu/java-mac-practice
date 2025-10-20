@@ -1,0 +1,25 @@
+//멤버변수와 지역변수 구분하는법
+class Bar{
+	private int num =2;
+
+	public void todo(){
+		int num=4;
+
+		System.out.println(num);
+		System.out.println(this.num);
+	}
+}
+
+class UseBar{
+	public static void main(String[] args){
+		Bar b = new Bar();
+		Bar c = new Bar();
+		b.todo(); /*=> 4 지역변수 우선 멤버변수우선원할시 this. this사용자는 소유자 b
+				   참조변수와 같다고 생각 지역변수 접근 x 멤버변수 or 메서드
+				   this = 객체 자신의 주소 
+				   public String setName(String name){
+						return this.name = name;
+					}*/
+		c.todo();
+	}
+}

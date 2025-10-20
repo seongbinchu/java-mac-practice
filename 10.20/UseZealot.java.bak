@@ -1,0 +1,162 @@
+class Zealot{
+	private String brood;
+	private String roll;
+	private String weapon;
+	private int damage;
+	private int hp;
+	private int speed;		//1 만큼 1좌표 이동 
+	private int horizontal;	//가로축
+	private int vertical;	//세로축
+	private int locationX;	//가로축 위치
+	private int locationY;	//세로축 위치
+	private int movingCount=0;
+
+	public String getBrood(){
+		return brood;
+	}
+	public String getRoll(){
+		return roll;
+	}
+	public String getWeapon(){
+		return weapon;
+	}
+	public int getDamage(){
+		return damage;
+	}
+	public int getHp(){
+		return hp;
+	}
+	public int getSpeed(){
+		return speed;
+	}
+	public int getHorizontal(){
+		return horizontal;
+	}
+	public int getVertical(){
+		return vertical;
+	}
+	public int getLocationX(){
+		return locationX;
+	}
+	public int getLocationY(){
+		return locationY;
+	}
+	public int movingCount(){
+		return movingCount;
+	}
+
+	public void setBrood(String brood){
+		this.brood = brood;
+	}
+	public void setRoll(String roll){
+		this.roll = roll;
+	}
+	public void setWeapon(String weapon){
+		this.weapon = weapon;
+	}
+	public void setDamage(int damage){
+		this.damage = damage;
+	}
+	public void setHp(int hp){
+		this.hp = hp;
+	}
+	public void setSpeed(int speed){
+		this.speed = speed;
+	}
+	public void setVertical(int vertical){
+		this.vertical = vertical;
+	}
+	public void sethorizontal(int horizontal){
+		this.horizontal = horizontal;
+	}
+	public void setLocationX(int locationX){
+		this.locationX = locationX;
+	}
+	public void setLocationY(int locationY){
+		this.locationY = locationY;
+	}
+
+	public String toString() {
+		String info = "종족 : " + brood + "\n";
+		info += "역할 : " + roll + "\n";
+		info += "무기는 : " + weapon + "\n";
+		info += "데미지는 : " + damage + "\n";
+		info += "체력은 : " + hp + "\n";
+		info += "이동속도 : "+speed+"\n";
+		return info;
+	}
+	public Zealot(){
+		setBrood("protos");
+		setRoll("worrior");
+		setWeapon("sword");
+		setDamage(30);
+		setHp(100);
+		setSpeed(1);
+		setLocationX(0);
+		setLocationY(0);
+	}
+	public void moveX(int horizontal){
+		if(horizontal>0){
+			for(int i=0;i<horizontal;i++){
+				locationX++;
+				movingCount++;
+			}movingCount=0;
+		}
+	}
+	public void moveY(int vertical){
+		if(vertical>0){
+			for(int i=0;i<vertical;i++){
+				locationY++;
+				movingCount++;
+			}movingCount=0;
+		}
+	}
+
+	public void stopMoving(){
+		if(movingCount>0){
+			horizontal=0;
+			vertical=0;
+		}
+	}
+
+	public void attackUnit(Zealot other){
+		if(other.hp>this.damage){
+			other.hp-=this.damage;
+		}else if(other.hp<this.damage){
+			other.hp=0;
+		}
+	}
+	//생성자가 값을 다 입력해 줄거면 아그먼트없는 기본생성자로
+
+}
+
+class UseZealot{
+	public static void main(String[] args){
+
+		Zealot z1 = new Zealot();
+		Zealot other = new Zealot();
+		
+		System.out.println(z1.getLocationX());
+		z1.moveX(3);
+		System.out.println(z1.getLocationX());
+
+		System.out.println(other.getLocationY());
+		other.moveY(1);
+		System.out.println(other.getLocationY());
+
+		for(int i =0;;i++){
+			z1.moveX(1);
+			i++;
+			if(i==9){
+				System.out.println(z1.getLocationX());
+			}
+			if(i==10){
+				z1.stopMoving();
+				System.out.println(z1.getLocationX());
+			}
+		}
+
+
+
+	}
+}
