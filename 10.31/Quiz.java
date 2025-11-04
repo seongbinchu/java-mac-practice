@@ -1,0 +1,22 @@
+class Quiz{
+	public static void answer(String str){
+		boolean flag = true;
+		int idx = str.length();
+		while(flag){
+			idx = str.lastIndexOf(" ",idx);
+			if(idx == -1){
+				idx =0;
+				flag = false;
+			}else{
+				idx++;
+			}
+			System.out.println(str.substring(idx));
+			idx-=2;
+		}
+	}
+	public static void main(String[] args){
+		String str ="태산이 높다하되 하늘 아래 뫼이로다.";
+		answer(str);
+	}
+
+}

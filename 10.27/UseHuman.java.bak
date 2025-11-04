@@ -1,0 +1,51 @@
+abstract class Cloth{
+	abstract public void printSize();
+}
+class Hat extends Cloth{
+	@Override
+	public void printSize(){
+		System.out.println("M");
+	}
+}
+class Pants extends Cloth{
+	@Override
+	public void printSize(){
+		System.out.println("28inch");
+	}
+}
+class Tshirts extends Cloth{
+	@Override
+	public void printSize(){
+		System.out.println("L");
+	}
+}
+class Human{
+	/*
+	public void buy(Pants p){
+	}
+	public void buy(Tshirts t){
+	}
+	public void buy(Hat h){
+	}*/
+	public void buy(Cloth c){
+		if(c instanceof Pants){
+			System.out.println("¹ÙÁö");
+		}else if(c instanceof Tshirts){
+			System.out.println("¼ÅÃ÷");
+		}else{
+			System.out.println("¸ðÀÚ");
+		}
+		c.printSize();
+	}
+
+}
+class UseHuman{
+	public static void main(String[] args){
+		Human h = new Human();
+		h.buy(new Tshirts());
+		h.buy(new Pants());
+		h.buy(new Hat());
+		
+		c.printSize();
+	}
+}

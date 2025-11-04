@@ -1,0 +1,30 @@
+//배열은 기능이 없다.
+//배열이 할 수 있는 일들을 static class 에 모아둔 도우미 클래스 Arrays
+import java.util.Arrays.*;
+class ArrEx5{
+	//int... nums = arr;
+	//int[] nums = arr;
+	public static void todo(int... nums){
+		nums[0]=100;
+	}
+	
+	
+	public static void main(String[] args){
+		int[] arr = {1,2,3};
+		todo(arr);
+		//1=>100 조심
+
+
+		//for-each문 // 0부터 끝까지 =>순회
+		for(int n : arr){
+			System.out.println(n);
+
+			//for(int i=0;i<arr.length;i++)과의 차이점
+			//for-each는 인덱스 지정 불가
+			//for-each는 대입연산에 불리하다
+			//순회에 유리
+		String str = Arrays.toString(arr);
+		System.out.println(str);
+		}
+	}
+}

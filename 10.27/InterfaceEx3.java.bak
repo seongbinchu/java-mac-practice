@@ -1,0 +1,10 @@
+interface IRoot{
+}
+interface IFoo extends IFoo{
+}
+interface IBar extends IFoo,IRoot
+class InterfaceEx3{
+	public static void main(String[] args){
+
+	}
+}

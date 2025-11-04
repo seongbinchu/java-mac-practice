@@ -1,0 +1,31 @@
+/*
+	
+	복수데이터
+	1.배열(array)
+		-원소(element)가 동일한 타입
+		-인덱스로 구분
+		-길이(원소수)는 한번 정해지면 변경 불가능 => 배열에 인서트나 딜리트안되는이유 
+			=>length
+		-객체다(참조형) [생성자는 사용 x]
+		-API document에 존재하지 않는다
+		-기능이 없다
+*/
+
+class ArrEx1{
+	public static void main(String[] args){
+		int[] arr = new int[3];
+	//같은말	int arr1[] = new int[3];  => 초기값 0,0,0
+		arr[0] = 4;
+		arr[1] = 7;
+		arr[2] = 1;
+
+		int[] arr2 = {4,7,1};		//해당 방법2 선언과 정의 분리안됨
+
+		int[] arr3 = new int[] {4,7,1};
+		//이름없이 파라미터 사용하려 존재하는 배열
+
+		for(int i=0;i<arr.length;i++){
+				System.out.println(arr[i]);
+		}
+	}
+}

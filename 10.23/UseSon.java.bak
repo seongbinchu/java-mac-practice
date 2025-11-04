@@ -1,0 +1,19 @@
+class Father{
+	//π‰∏‘¿Ω
+	public void eat(){
+		//ø¿∏•º’¿‚¿Ã
+		System.out.println("ø¿∏•º’¿∏∑Œ π‰");
+	}
+}
+class Son extends Father{
+	//π‰∏‘¿Ω
+	public void eat(){
+		System.out.println("øﬁº’¿∏∑Œ π‰");
+	}
+}
+class UseSon{
+	public static void main(String[] args){
+		Son s = new Son();
+		s.eat();
+	}
+}

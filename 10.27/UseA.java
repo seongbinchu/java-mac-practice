@@ -1,0 +1,26 @@
+class A{
+	public void call(){
+		todo();
+	}
+	public void todo(){
+		System.out.println("A's todo");
+	}
+
+}
+class B extends A{
+	@Override
+	public void todo(){
+		System.out.println("B's todo");
+	} 
+}
+class UseA{
+	public static void main(String[] args){
+		B b = new B();
+		b.call();
+		/*
+		b.call();=>B call 없음 => A => A.call() = > todo();=>
+		this 생략돼있음 =>this.todo(); = > this 자신객체(B)
+		자식클래서에서 super객체주소값 부르는 것은 super뿐
+		*/
+	}
+}

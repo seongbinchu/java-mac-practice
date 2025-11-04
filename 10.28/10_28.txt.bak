@@ -1,0 +1,17 @@
+객체타입?변환 => 멤버변환 / 멤버가 사라진척은 가능하나 없는것을 추가안되니 기본다운캐스팅안됨 
+참조변수가 가르키는 객체타입을 변경한다?
+//singleton pattern : 단 하나의 유일한 객체를 보장하는 기법
+class MyObj{
+	private static final MyObj OBJ = new MyObj();
+
+	private MyObj(){}
+
+	public static MyObj getInstance(){
+		return OBJ;
+	}
+}
+class UseMyObj{
+	public static void main(String[] args){
+		MyObj o = MyObj.getInstance();
+	}
+}

@@ -1,0 +1,12 @@
+class StringEx1{
+	public static void main(String[] args){
+		String str1= "abc";
+		String str2= "abc";
+		String str3= new String("abc");					//스트링풀에 올라감 
+		String str4= new String("abc").intern();		//스트릉풀에 해당 문자열값 있는지 먼저 검사 => 있다 => 객체생성x
+		System.out.println(str1==str2);					//1,2같은객체
+		System.out.println(str1==str3);					//문자열 => 상수 , 공유
+		System.out.println(str1==str4);					//스트링풀 등록 안함 //but intern()하면 스트링풀 등록 
+														
+	}
+}

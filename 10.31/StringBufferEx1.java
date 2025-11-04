@@ -1,0 +1,23 @@
+class StringBufferEx1{
+	public static void main(String[] args){
+		//변할 수 있는 StringBuffer 특징메소드
+		//String < StringBuffer,Builder                      
+		StringBuffer buf = new StringBuffer("abc");
+		
+		buf.append("def");
+
+		System.out.println(buf); //상수아니라 대입필요없음
+
+		buf.delete(1,3);
+		System.out.println(buf); //1부터 3전까지 지우기
+
+		buf.insert(1,"XX");
+		System.out.println(buf); //1에 삽입
+
+		buf.reverse();
+		System.out.println(buf);
+		
+		buf.setLength(3);
+		System.out.println(buf);	//길이(index아님)를 3으로 바꾸고 다날림
+	}
+}

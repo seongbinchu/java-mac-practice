@@ -1,0 +1,153 @@
+class VendingMachine{
+	private String company;
+	private String texture;
+	private int length;
+	private int width;
+	private int height;
+	private int account;
+
+	public static final int MILKCOFFEE=1;
+	public static final int BLACKCOFFEE=2;
+	public static final int MASIL=3;
+	public static final int COCOA=4;
+
+	private int priceMilkCoffee;
+	private int priceBlackCoffee;
+	private int priceMasil;
+	private int priceCocoa;
+
+
+	public String getCompany(){
+		return company;
+	}
+	public String getTextture(){
+		return texture;
+	}
+	public int getLength(){
+		return length;
+	}
+	public int getWidth(){
+		return width;
+	}
+	public int getHeight(){
+		return height;
+	}
+	public int getAccount(){
+		return account;
+	}
+	public int getPriceMilkCoffee(){
+		return priceMilkCoffee;
+	}
+	public int getPriceBlackCoffee(){
+		return priceBlackCoffee;
+	}
+	public int getPriceMasil(){
+		return priceMasil;
+	}
+	public int getPriceCocoa(){
+		return priceCocoa;
+	}
+
+
+	public void setCompany(String company){
+		this.company = company;
+	}
+	public void setTexture(String texture){
+		this.texture = texture;
+	}
+	public void setLength(int length){
+		this.length = length;
+	}
+	public void setWidth(int width){
+		this.width = width;
+	}
+	public void setHeight(int height){
+		this.height = height;
+	}
+	private void setAccount(int account){
+		this.account = account;
+	}
+
+	private VendingMachine(String company,String texture,int length,int width,int height,int account){
+		this.company  = company;
+		this.texture  = texture;
+		this.length   = length;
+		this.width    = width;
+		this.height   = height;
+		this.account  =account;
+		
+		this.priceMilkCoffee = 1000;
+        	this.priceBlackCoffee = 800;
+        	this.priceMasil = 1200;
+       		this.priceCocoa = 700;
+	}
+
+	public VendingMachine(String texture,int length,int width,int height){
+		this("LG",texture,length,width,height,0);
+	}
+	
+	public VendingMachine(){
+		setCompany("LG");
+		setTexture("플라스틱");
+		setLength(300);
+		setWidth(150);
+		setHeight(200);
+		setAccount(0);
+	}
+
+	public String toString(){
+		String info ="제조사는 : "+company+"\n";
+		info+="재질 : "+texture+"\n";
+		info+="길이 : "+length+"\n";
+		info+="너비 : "+width+"\n";
+		info+="높이 : "+height+"\n";
+		return info;
+	}
+	public void inputMoney(int money){
+		if(money>0){
+			account+=money;
+		}
+	}
+	public int returnMoney(){
+		int change = this.account;
+		this.account =0;
+		return change;
+	}
+
+	public void select(int choice){
+		int price =0;
+		String drink;
+		System.out.println("1.밀크커피2.블랙커피3.매실4.코코아");
+		switch(choice){
+			case MILK_COFFEE:
+				price = this.priceMilkCoffee;
+				drink ="밀크커피";
+				break;
+			case BLACK_COFFEE:
+				price = this.priceBlackCoffee;
+				drink ="블랙커파";
+				break;
+			case MASIL:
+				price = this.priceMasil;
+				drink="매실";
+				break;
+			case COCOA:
+				price =this.priceCocoa;
+				drink="코코아";
+				break;
+			default:
+				return "1~4 중 숫자를 입력하시오.";
+			}
+			if(this.account >= price){
+				this.account -= price;
+				return drink+"제공 후 잔액 : "+this.account;
+			}else{
+				return "잔액부족";
+			}
+		}
+	}
+}
+class UseVendingMachine{
+	public static void main(String[] args){
+	}
+}

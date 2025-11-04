@@ -1,0 +1,329 @@
+class Location {
+    private int x;
+    private int y;
+    private int z;
+    public Location(int x, int y, int z){
+		this.x = x; 
+		this.y = y; 
+		this.z = z;
+	}
+    public int getX(){
+		return x; 
+	}
+    public int getY() { 
+		return y; 
+	}
+    public int getZ() {
+		return z;
+	}
+    public void setX(int x) { 
+		this.x = x; 
+	}
+    public void setY(int y) { 
+		this.y = y;
+	}
+    public void setZ(int z) { 
+		this.z = z; 
+	}
+}
+
+class UnitStataus {
+	private int hp;
+	private int maxHp;
+	private int amr;
+	private double speed;
+	private int sight;
+	private boolean flying;
+
+	public UnitStataus(int hp,int maxHp, int amr, double speed, int sight, boolean flying) {
+        this.hp = hp;
+		this.maxHp = maxHp;
+        this.amr = amr;
+        this.speed = speed;
+        this.sight = sight;
+        this.flying = flying;
+    }
+
+    public int getMaxHp() {
+		return maxHp; 
+	}
+    public int getAmr() {
+		return amr; 
+	}
+    public double getSpeed() { 
+		return speed; 
+	}
+    public int getSight() { 
+		return sight;
+	}
+    public boolean isFlying() { 
+		return flying; 
+	}
+    public int getHp() { 
+		return hp;
+	}
+    public void setHp(int hp) {
+		//0보다 크고 maxHp보다 작거나 같게}
+	}
+
+class AttackPower {
+    private int damage;
+    private double attackSpeed;
+    private int range;
+
+    public AttackPower(int damage, double attackSpeed, int range) {
+        this.damage = damage;
+        this.attackSpeed = attackSpeed;
+        this.range = range;
+    }
+
+    public int getDamage() { 
+		return damage; 
+	}
+    public double getAttackSpeed() { 
+		return attackSpeed; 
+	}
+    public int getRange() { 
+		return range; 
+	}
+}
+
+class Mana {
+    private int maxMana;
+    private int mana;
+
+    public Mana(int maxMana, int mana) {
+        this.maxMana = maxMana;
+        this.mana = mana;
+    }
+
+    public int getMaxMana() {
+		return maxMana;
+	}
+    public int getMana() {
+		return mana; 
+	}
+
+    public boolean canUse(int cost) {
+		return mana >= cost;
+	}
+    public boolean use(int cost) {
+        if (canUse(cost)) { 
+			mana -= cost; 
+			return true;
+		}
+        return false;
+    }
+    public void recoveryMana(int perMana) {
+        //초당 마나 회복
+    }
+}
+
+interface IMove {
+    void move(Unit unit,Location destination);
+    void stop(Unit unit);
+    void hold(Unit unit);
+    void patrol(Unit unit,Location pointA,Location pointB);
+}
+
+interface IAttack {
+    void attack(Unit attacker, Unit target);
+	void attackMove(Location destination);
+}
+
+interface IMagic {
+    void cast(Unit caster, Unit target);
+}
+
+
+class MoveWalk implements IMove {
+	@Override
+    public void move(Unit unit, Location destination) {
+        //유닛에는 여러 객체타입이 생성될 텐데 유닛을 지정 안해주면 무엇이 무브할지 모르니 파라미터에 유닛을 넣어줘야할까
+    }
+    public void stop(Unit unit) { 
+		System.out.println("스탑");
+	}
+    public void hold(Unit unit) { 
+		System.out.println("홀드"); 
+	}
+    public void patrol(Unit unit, Location a, Location b) {
+        System.out.println("순찰");
+    }
+}
+
+class MoveFly implements IMove {
+	@Override
+    public void move(Unit unit, Location destination) {
+        //장애물 무시 및 감속 , 가속
+        unit.setLocation(destination);
+    }
+    public void stop(Unit unit) { 
+		System.out.println(" 비행 스탑");
+	}
+    public void hold(Unit unit) {
+		System.out.println("홀드"); 
+	}
+    public void patrol(Unit unit, Location a, Location b) {
+        System.out.println("순찰");
+    }
+}
+
+class AttackGround implements IAttack {
+	@Override
+	public void attack(Unit attacker, Unit target){
+	}
+	public void attackMove(Location destination){
+	}
+}
+class AttackAir implements IAttack {
+	@Override
+	public void attack(Unit attacker, Unit target){
+	}
+	public void attackMove(Location destination){
+	}
+}
+
+class MagicHeal implements IMagic {
+    public static final int MANA_COST = 1;
+    public void cast(Unit caster, Unit target) {
+    }
+}
+
+class MagicBlind implements IMagic {
+    public static final int MANA_COST = 75;
+	public void cast(Unit caster, Unit target) {
+    }
+}
+
+class MagicDispel implements IMagic {
+    public static final int MANA_COST = 50;
+	public void cast(Unit caster, Unit target) {
+    }
+}
+
+abstract class Unit implements IMove,IAttack,IMagic{
+    private UnitStataus stataus;
+    private Location location;
+    private IMove moveBehavior;
+	private IAttack attackBehavior;
+	private IMagic magicBehavior;
+    private AttackPower groundAttackPower;
+    private AttackPower airAttackPower;
+
+    public Unit(UnitStataus stataus, Location location) {
+        this.stataus = stataus;
+        this.location =location;
+    }
+
+    public void setLocation(Location location) {
+		this.location = location; 
+	}
+    public void setGroundAttackPower(AttackPower groundAttackPower) {
+		this.groundAttackPower = groundAttackPower; 
+	}
+    public void setAirAttackPower(AttackPower airAttackPower) { 
+		this.airAttackPower = airAttackPower; 
+	}
+
+    public UnitStataus getStataus() { 
+		return stataus; 
+	}
+    public Location getLocation() { 
+		return location; 
+	}
+    public AttackPower getGroundAttackPower() {
+		return groundAttackPower;
+	}
+    public AttackPower getAirAttackPower() {
+		return airAttackPower;
+	}
+    public boolean isFlying() { 
+		return stataus.isFlying(); 
+	}
+	public void Move(Unit unit,Location destination) {
+    }
+    public void Stop(Unit unit) {
+    }
+    void Hold(Unit unit){
+	}
+    void Patrol(Unit unit,Location pointA,Location pointB){
+	}
+
+}
+
+class Zealot extends Unit {
+    
+    public Zealot(Location location) {
+        super(new Unitstataus(160, 1, 1.875, 7, false), location);
+        setGroundAttackPower(new AttackPower(16, 1.0, 1));
+        setAirAttackPower(null); 
+        setAttackBehavior(new Attack()); 
+        setMoveBehavior(new MoveWalk());
+    }
+    
+    @Override 
+	public void performAttack(Unit target) {
+		attackBehavior.attack(this,target); 
+	}
+    @Override 
+	public void performAttackMove(Location destination) {
+		attackBehavior.attackMove(destination);
+	}    
+}
+class Medic extends Unit {
+    private Mana mana;
+    private IMagic healBehavior;
+    private IMagic dispelBehavior;
+    private IMagic blindBehavior;
+
+    public Medic(Location location) {
+        super(new Unitstataus(60, 1, 1.875, 9, false), location);
+        setMoveBehavior(new MoveWalk());
+        this.mana = new Mana(200, 50);
+        this.healBehavior = new MagicHeal();
+        this.dispelBehavior = new MagicDispel();
+        this.blindBehavior = new MagicBlind();
+    }
+
+    @Override 
+	public Mana getMana() {
+		return mana; 
+	}
+
+    public void performHeal(Unit target) {  
+    }
+    public void performDispel(Unit target) { 
+    }
+    public void performBlind(Unit target) { 
+    }
+    
+
+}
+
+class Mutalisk extends Unit{
+    public Mutalisk(Location location) {
+        super(new Unitstataus(120, 0, 3.75, 7, true), location);
+        AttackPower attackPower = new AttackPower(9, 1.0, 3);
+        setGroundAttackPower(attackPower);
+        setAirAttackPower(attackPower);
+        setAttackBehavior(new Attack()); 
+        setMoveBehavior(new MoveFly());
+    }
+
+    @Override 
+	public void performAttack(Unit target) {
+		attackBehavior.attack(this, target); 
+	}
+    @Override 
+	public void performAttackMove(Location destination) {
+    }
+    
+    
+}
+
+class Test{
+	public static void main(String[] args){
+	
+	}
+}

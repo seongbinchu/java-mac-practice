@@ -1,0 +1,35 @@
+class ArrEx4{
+
+	public static int getTotal(int[] arr){
+		int total = 0;
+		for(int i=0;i<arr.length;i++){
+			total += arr[i];
+		}
+		return total;
+	}
+	//가변길이 인자(varable length arguements)
+	//배열 직접 생성 안해도 됨
+	//파라미터 없어도 대응이 가능하다.
+	//배열도 처리할 수 있다.
+	// 사용시 주의사항
+	// 메소스 당 한개만 존재할 수 있다=>값의 경계가 모호해짐 누구 인자의 값인지 모름
+	//일반 파라미터랑 섞어 사용 가능 =>일반 파라미터는 생략 불가능 , 가변길이인자가 마지막 파라미터에 위치해야함
+	public static int getSum(int... nums){
+		return getTotal(nums);
+	}
+
+	public static void todo(String str,int... nums){
+	
+	}
+	public static void main(String[] args){
+		System.out.println(getTotal(new int[]{1,2,3,4,5}));
+
+		System.out.println(getSum());
+		System.out.println(getSum(1,2,3,4,5));
+		System.out.println(getSum(new int[]{1,2,3,4,5,6,7}));
+
+		todo("a");
+		todo("b",1,2,3,4,5);
+		todo("c",new int[] {1,2,3});
+	}
+}

@@ -1,0 +1,48 @@
+abstract class DoBrother{
+	public double area;
+	abstract public double getArea();
+	@Override
+	public String toString(){
+		return "area : "+getArea();
+		//반복되는 area toString 출력 getArea
+	}
+}
+class Circle extends DoBrother{
+	private double banzirm;
+	public Circle(double banzirm){
+		setBanzirm(banzirm);
+	}
+	public void setBanzirm(double banzirm){
+		this.banzirm=banzirm;
+	}
+	public double getArea(){
+		return banzirm*banzirm*3.14;
+	}
+	@Override
+	public String toString(){
+		String info = "<<Cirlce>>"+"\n";
+		info+="r= "+banzirm+"\n";
+		info+= super.toString();
+		return info;
+	}
+}
+class Triangle extends DoBrother{
+	private int garo;
+	private int height;
+	public double getArea(){
+		return garo*height*0.5;
+	}
+}
+class Rectangle extends DoBrother{
+	private int garo;
+	private int sero;
+	public double getArea(){
+		return garo*sero;
+	}
+}
+class UseDoBrother{
+	public static void main(String[] args){
+		Circle c1 = new Circle(5);
+		System.out.println(c1);
+	}
+}

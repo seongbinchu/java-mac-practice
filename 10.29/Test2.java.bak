@@ -1,0 +1,22 @@
+interface IAttackPower{
+	int getAttackPower();
+} 
+class AttackPower implements IAttackPower{
+	public int damage;
+	
+	public AttackPower(int damage){
+		this.damage = damage;
+	}
+	@Override
+	public int getAttackPower(){
+		return damage;
+	}
+}
+class Test2{
+	public static void todo(IAttackPower p){
+		System.out.println(p.getAttackPower());
+	}
+	public static void main(String[] args){
+		todo(new AttackPower(10));
+	}
+}

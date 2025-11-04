@@ -1,0 +1,436 @@
+-추상클래스
+abstract calss ...{}
+추상메소드를 포함할 수 있는 클래스
+=>특징
+1.객체로 만들 수 없음 => 추상메소드 실행 불가능
+2.하위클래스를 위해 존재함 (계층구조 생성을 위해 존재함[상위 개념 표현])
+3.하위클래스가 존재할 때 의미를 가짐
+4.하위클래스의 의무
+ 부모를래스가 존재하는 추상메소드를 반드시 오버라이드 해야한다(바디를 정의해야함)
+ 
+ 추상클래스 사용
+ -현재 계층에서 정의할 수 없는 기능을 가졌을 때
+ -하위 클래스의 특정기능이 중복되어 상위클래서로 옮긴 경우
+ -하위 클래스의 동일한 기능들이 하는일이 서로 상이한 경우
+ -객체 생성을 원하지 않는 경우
+
+-추상메소드
+abstract 접근제한자 리턴 메소드명 파라미터 ;
+헤더로 목적은 정의하나 바디로 방법을 표현하지않음
+상속받은 메소드가 자식클래스에선 구체적이나 부모클래스에서 구체적으로 정의하지 못할 때
+ex.도형(면적구하기)-삼각형,사각형
+
+다이어그램
+<<class>>
+메서드 :이텔릭체
+
+인터페이스(interface)
+추상메서드,상수 public static final만 가질 수 있음(멤버변수x일반메소드x생성자x...)
+접근제한자 public만 가능
+interface ISome{}(class 대신 interface 대문자로 시작하고 I붙여줌)
+객체생성불가
+클래스 상속(다이어그램 화살표) == 인터페이스 구현(implements){특이 is-a관계 ~할 수 있는} 다이어그램 점선화살표
+클래스들은 점차 복잡하고 의존성이 증가하고 있음으로 인터페이스가 중요함
+다중구현가능 (다중상속 같은 메소드가 있을 시 뭐를 부를지 모호 다중구현은 바디가 없으니 모호할 수 없음)
+인터페이스 끼리 상속 가능(다중상속도가능)
+
+has-a(멤버변수로 가짐) use-a(지역변수로가짐) is-a(상속,구현)
+
+-다형성
+객체의 타입이 여러가지임 바지 - 바지타입, 옷타입
+모든 객체는 최상위 클래스 object 타입을 가지기 때문에 최소 2가지 이상의 타입을 가짐
+is -a 관계를 전제로 한 성질
+? object는 object밖에 없는데 2개?
+
+-equlas
+동일한 멤버변수 값을 가진 객체?
+
+=========================================
+abstract class DoBrother{
+	public double area;
+	abstract public double getArea();
+	@Override
+	public String toString(){
+		return "area : "+getArea();
+	}
+}
+class Circle extends DoBrother{
+	private double banzirm;
+	public Circle(double banzirm){
+		setBanzirm(banzirm);
+	}
+	public void setBanzirm(double banzirm){
+		this.banzirm=banzirm;
+	}
+	public double getArea(){
+		return banzirm*banzirm*3.14;
+	}
+	@Override
+	public String toString(){
+		String info = "<<Cirlce>>"+"\n";
+		info+="r= "+banzirm+"\n";
+		info+= super.toString();
+		return info;
+	}
+}
+class Triangle extends DoBrother{
+	private int garo;
+	private int height;
+	public double getArea(){
+		return garo*height*0.5;
+	}
+}
+class Rectangle extends DoBrother{
+	private int garo;
+	private int sero;
+	public double getArea(){
+		return garo*sero;
+	}
+}
+class UseDoBrother{
+	public static void main(String[] args){
+		Circle c1 = new Circle(5);
+		System.out.println(c1);
+	}
+}
+class A{
+	public void call(){
+		todo();
+	}
+	public void todo(){
+		System.out.println("A's todo");
+	}
+}
+class B extends A{
+	@Override
+	public void todo(){
+		System.out.println("B's todo");
+	} 
+}
+class UseA{
+	public static void main(String[] args){
+		B b = new B();
+		b.call();
+		/*
+		b.call();=>B call 없음 => A => A.call() = > todo();=>
+		this 생략돼있음 =>this.todo(); = > this 자신객체(B)
+		자식클래서에서 super객체주소값 부르는 것은 super뿐
+		*/
+	}
+}
+abstract class Animal{
+	abstract public void sound();
+/*
+public void sound(){
+		문제점1 비워 둔 것은 하위클래스에서 오버라이드 하라는 뜻
+		 하지만 하위클래스에서 사용해도 되는지 알 수가 없음
+		 문제점2 헤더가 다 다를 수 있음 sound , bark , ...
+}
+*/
+}
+class Cat extends Animal{
+	@Override
+	public void sound(){
+		System.out.println("cat");
+	}
+}
+class Dog extends Animal{
+	@Override
+	public void sound(){
+		System.out.println("dog");
+	}
+}
+abstract class Tutle extends Animal{
+	//상속받은 추상메소드 추상클래스이기 때문에 오류x
+	//추상클래스라서 객체로 사용 x 하위클래스 존재x 의미없음
+}
+class UseAnimal{
+	public static void main(String[] args){
+		Cat c1 = new Cat();
+		Dog d1 = new Dog();
+		c1.sound();
+		d1.sound();
+	}
+}
+interface Ifirst{
+	public static final int MAX = 10;
+	// int MAX =10; 같은말임 public만 가능하기 때문
+	abstract public void todo();
+	// void todo(); 접근제한자 public 만 가능 추상메소드만 가능하기 때문에 생략가능
+}
+class FirstImp implements Ifirst{
+	//인터페이스를 구현하는 클래스는 반드시 추상메소드를 오버라이드 해야한다
+	@Override
+	public void todo(){
+		System.out.println("잠온다잠온다잠온다");
+	}
+}
+class InterrfaceEx1{
+	public static void main(String[] args){
+		FirstImp i1 = new FirstImp();
+		i1.todo();
+	}
+}
+interface IA{
+	void todo();
+	void methodA();
+}
+interface IB{
+	public abstract void todo();
+	public atstract void methodB();
+}
+class Some implements IA,IB{
+	@Override
+	public void todo(){
+	}
+	@Override
+	public void methodA(){
+	}
+	public void methodB(){
+	}//모두 구현해야함
+}
+class InterfaceEx2{
+	public static void main(String[] args){
+	}
+}
+interface IRoot{
+	void methodRoot();
+}
+interface IFoo{
+	void methodIFoo();
+}
+interface IBar extends IFoo,IRoot{
+	void methodIBar();
+}
+class Other implements IBar{
+	@Override
+	public void methodRoot(){
+	}
+	@Override
+	public void methodIFoo(){
+	}
+	@Override
+	public void methodIBar(){
+	}
+}
+class InterfaceEx3{
+	public static void main(String[] args){
+	}
+}
+interface IWalking{
+	void walk();
+}
+class Human{
+}
+class Dead extends Human implements IWalking{
+	@Override
+	public void walk(){
+		System.out.println("walk");
+	}
+}
+class InterfaceEx4{
+	public static void main(String[] args){
+		Dead d1 = new Dead();
+		d1.walk();
+	}
+}
+//보통의 클래스 형태 상속받고 구현
+//상속 확장하다?
+//상속에는 변수만들어가고 인터페이스에 메소드 몰아야하나
+
+class Child extends Parent{
+}
+class Parent{
+}
+class UseChild{
+	public static void main(String[] args){
+		Child c = new Child();
+		Parent p = c;
+		Object o = c;
+	}
+}
+abstract class Cloth{
+	abstract public void printSize();
+}
+class Hat extends Cloth{
+	@Override
+	public void printSize(){
+		System.out.println("M");
+	}
+}
+class Pants extends Cloth{
+	@Override
+	public void printSize(){
+		System.out.println("28inch");
+	}
+}
+class Tshirts extends Cloth{
+	@Override
+	public void printSize(){
+		System.out.println("L");
+	}
+}
+class Human{
+	/*
+	public void buy(Pants p){
+	}
+	public void buy(Tshirts t){
+	}
+	public void buy(Hat h){
+	}*/
+	public void buy(Cloth c){
+		if(c instanceof Pants){
+			System.out.println("바지");
+		}else if(c instanceof Tshirts){
+			System.out.println("셔츠");
+		}else{
+			System.out.println("모자");
+		}
+		c.printSize();
+	}
+}
+class UseHuman{
+	public static void main(String[] args){
+		Human h = new Human();
+		h.buy(new Tshirts());
+		h.buy(new Pants());
+		h.buy(new Hat());
+	}
+}
+class One{
+	public String memberOfOne = "one";
+}
+class Two extends One{
+	public String memberOfTwo = "two";
+}
+class Three extends Two{
+	public String memberOfThree = "three";
+}
+class UseThree{
+	public static void main(String[] args){
+		Three t = new Three();
+		Two tt = t;
+		System.out.println(tt.memberOfTwo);
+		//System.out.println(tt.memberOfThree);
+		Three ttt = (Three)tt;
+		System.out.println(ttt.memberOfThree);
+		//three 객체 => two 형변환 => three 형변환 가능
+
+		tt = new Two();
+		//ttt = (Three)tt;
+		//two 객체 => three 형변환 불가능 => instanceof 사용이유 (다운캐스팅 시 형변환의 안전성을 보장해주는 연산자)
+		if(tt instanceof Three){
+			ttt = (Three)tt;
+		}else{
+			System.out.println("변환불가");
+		}// 검사시 상위계층으로 검사하면 다 true 나오기 때문에 역순으로 검사해야함
+	}
+}
+class Ball{
+	private int num;
+	private String color;
+	public Ball(int num,String color){
+		setNum(num);
+		setColor(color);
+	}
+	public int getNum(int num){
+		return num;
+	}
+	public void setNum(int num){
+		this.num = num;
+	}
+	public void setColor(String color){
+		this.color = color;
+	}
+	@Override
+	public String toString(){
+		return "Ball "+num + "("+color+")";
+	}
+	@Override
+	public boolean equals(Object o){
+		//번호가 같으면 같은 공이다
+		if(o==null || !(o instanceof Ball)){
+			return false;
+		}
+		Ball temp = (Ball)o;
+		return num == temp.num && color.equals(temp.color);
+		// String's eqauls는 문자열 같으면 true 리턴
+	}
+}
+class UseBall{
+	public static void main(String[] args){
+		Ball b1 = new Ball(4,"red");
+		Ball b2 = new Ball(5,"red");
+		Ball b3 = new Ball(4,"black");
+		Ball b4 = new Ball(5,"red");
+		Ball b5 = new Ball(4,"red");
+		System.out.println(b1.equals(null));
+		System.out.println(b1.equals(new Pants()));
+		System.out.println(b1.equals(b2));
+		System.out.println(b1.equals(b3));
+		System.out.println(b1.equals(b5));
+	}
+}
+class Book{
+	private String title;
+	private String writer;
+	private int price;
+
+	public String getTitle(){
+		return title;
+	}
+	public String getWriter(){
+		return writer;
+	}
+	public int getPrice(){
+		return price;
+	}
+	public void setTitle(String title){
+		this.title = title;
+	}
+	public void setWriter(String writer){
+		this.writer = writer;
+	}
+	public void setPrice(int price){
+		this.price = price;
+	}
+
+	public Book(String title,String writer,int price){
+		setTitle(title);
+		setWriter(writer);
+		setPrice(price);
+	}
+	public boolean equals(Object o){
+		// 제목이 같으면 같은책
+		// 제목과 가겨이 같으면 같은책
+		// 제목과 가격 저자가 모두 같으면 같은책
+		if(o==null ||!(o instanceof Book)){
+			return false;
+		}
+		Book b1 = (Book)o;
+		return price == b1.price;
+	}
+	public boolean equals(Object o){
+		if(o==null ||!(o instanceof Book)){
+			return false;
+		}
+		Book b1 = (Book)o;
+		return price == b1.price && title.equals(b1.title);
+	}
+	public boolean equals(Object o){
+		if(o==null ||!(o instanceof Book)){
+			return false;
+		}
+		Book b1 = (Book)o;
+		return price == b1.price && title.equals(b1.title) && writer.equals(b1.writer);
+	}
+}
+class UseBook{
+	public static void main(String[] args){
+		Book b1 = new Book("a","성빈",2000);
+		Book b2 = new Book("a","추",3000);
+		Book b3 = new Book("a","성빈",2000);
+		System.out.println(b1.equals(b3));
+		System.out.println(b1.equals(b2));
+	}
+}

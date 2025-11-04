@@ -1,0 +1,33 @@
+import java.util.Arrays;
+
+class Some{
+	private int num =5;
+}
+class ArrEx4{
+	public static void main(String[] args){
+		int[][] arr = new int[3][2];			//초기 0값 가짐 속에있는 배열은 데이터타입이 int기 때문에 초기값0
+		//int[][] arr = new int[3][]; 			//가능 null
+
+		arr[0][0]=1;
+		arr[0][1]=2;
+
+		arr[1][0]=3;
+		arr[1][1]=4;
+		
+		arr[2][0]=5;
+		arr[2][1]=6;
+
+
+		int colaStock = arr[2][1];
+
+		Some s = new Some();
+		int test = s;
+		int test = Some;
+
+		System.out.println(i);
+		//가능
+		for(int[] temp :arr){
+			System.out.println(Arrays.toString(temp));
+		}
+	}
+}

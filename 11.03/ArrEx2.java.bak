@@ -1,0 +1,35 @@
+import java.util.Scanner;
+
+class ArrEx2{
+	private static Scanner scan = new Scanner(System.in);
+	//학생 5명의 성적을 입력받고 총점과 평균을 구해라
+	public static void nonArrayCase(){
+		System.out.println("점수 : ");
+		int score1 = scan.nextInt();
+		System.out.println("점수 : ");
+		int score2 = scan.nextInt();
+		System.out.println("점수 : ");
+		int score3 = scan.nextInt();
+		System.out.println("점수 : ");
+		int score4 = scan.nextInt();
+		System.out.println("점수 : ");
+		int score5 = scan.nextInt();
+		
+		int total = score1+score2+score3+score4+score5;
+
+		System.out.println("총점 : "+total);
+		System.out.println("평균 : "+(total/5));
+	}
+
+	public static void useArrayCase(){
+		int studentCount=5;
+		int[] scores= new int[studentCount];
+		for(int i=0;i<scores.length;i++){
+			System.out.println("점수 : ");
+			scores[i]=scan.nextInt();
+		}
+	}
+	public static void main(String[] args){
+		useArrayCase();
+	}
+}

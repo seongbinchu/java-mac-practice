@@ -1,0 +1,63 @@
+class Book{
+	private String title;
+	private String writer;
+	private int price;
+
+	public String getTitle(){
+		return title;
+	}
+	public String getWriter(){
+		return writer;
+	}
+	public int getPrice(){
+		return price;
+	}
+	public void setTitle(String title){
+		this.title = title;
+	}
+	public void setWriter(String writer){
+		this.writer = writer;
+	}
+	public void setPrice(int price){
+		this.price = price;
+	}
+
+	public Book(String title,String writer,int price){
+		setTitle(title);
+		setWriter(writer);
+		setPrice(price);
+	}
+	public boolean equals(Object o){
+		// 제목이 같으면 같은책
+		// 제목과 가겨이 같으면 같은책
+		// 제목과 가격 저자가 모두 같으면 같은책
+		if(o==null ||!(o instanceof Book)){
+			return false;
+		}
+		Book b1 = (Book)o;
+		return price == b1.price;
+	}
+	public boolean equals(Object o){
+		if(o==null ||!(o instanceof Book)){
+			return false;
+		}
+		Book b1 = (Book)o;
+		return price == b1.price && title.equals(b1.title);
+	}
+	public boolean equals(Object o){
+		if(o==null ||!(o instanceof Book)){
+			return false;
+		}
+		Book b1 = (Book)o;
+		return price == b1.price && title.equals(b1.title) && writer.equals(b1.writer);
+	}
+}
+class UseBook{
+	public static void main(String[] args){
+		Book b1 = new Book("a","성빈",2000);
+		Book b2 = new Book("a","추",3000);
+		Book b3 = new Book("a","성빈",2000);
+		System.out.println(b1.equals(b3));
+		System.out.println(b1.equals(b2));
+	}
+}

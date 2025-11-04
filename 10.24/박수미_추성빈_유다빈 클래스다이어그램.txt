@@ -1,0 +1,72 @@
+Unit
+==========================================================================
+- unitName:String
+- hp:int
+- totalSupply:int{readOnly}
+- amr:int
+- attackPower:int
+- location:int
+- locationX:int
+- locationY:int
+- skyAttack:boolean
+- fly:boolean
+==========================================================================
++ getter / setter
++ toSring() :String
++ Unit(name:String, hp:int, totalSupply:int, amr:int, attackPower:int, skyAttack:boolean, fly:boolean)
+
+
+TerranUnit
+==========================================================================
+- TERRAN_SUPPLY : int {readonly}
+==========================================================================
++TerranUnit(name:String, hp:int, totalSupply:int, amr:int, attackPower:int, skyAttack:boolean, fly:boolean)
+========================================================================== 
+
+Medic
+==========================================================================
+-MEDIC_SUPPLY : int {readonly}
+==========================================================================
++Medic(name:String, hp:int, totalSupply:int, amr:int, attackPower:int, skyAttack:boolean, fly:boolean)
++getMedicSupply() :int
++heal(TerranUnit other) : TerranUnit
++toString() : String
+
+
+ProtossUnit
+==========================================================================
+-PROTOSS_SUPPLY : int {readonly}
+-shield : int
+getter/setter
++toString() : String
+
+
+Zealot
+==========================================================================
+- ZEALOT_SUPPLY : int {readonly}
+- attackTimes : int
+
++Zealot(name:String, hp:int, totalSupply:int, amr:int, attackPower:int, skyAttack:boolean, fly:boolean, shiled int , attackTimes int)
+getter/setter
+
++toString() : String
+
+
+ZergUnit
+==========================================================================
++ZergUnit(name:String, hp:int, totalSupply:int, amr:int, attackPower:int, skyAttack:boolean, fly:boolean)
++hpRecovery(Unit another) : Unit
++toString() : String
+
+Mutal
+==========================================================================
+-MUTAL_SUPPLY:int{readonly}
+-splash:boolean
+==========================================================================
++isSplash():boolean
++setSplash(splash:boolean):void
++bounceAttack(Target1:Unit,Target2:Unit):Unit
++mutalAttack():int
+
+
+

@@ -1,0 +1,74 @@
+class Circle{
+	private double radius;
+	private String color;
+
+	public Circle(){
+	
+	}
+	public Circle(double radius){
+		setRadius(radius);
+	}
+	public double getRadius(){
+		return radius;
+	}
+	public double getArea(){
+		double area=3.14*radius*radius;
+		return area;
+	}
+	public void setRadius(double radius){
+		this.radius=radius;
+	}
+	public void setArea(double area){
+		
+		area=3.14*radius*radius;
+	}
+	
+	public String toStirng(){
+		String info = "radious : "+radius +"\n";
+		info+= "color : "+ color +"\n";
+		info+= "area : "+getArea()+"\n";
+		return info;
+	} 
+}
+
+class Cylinder extends Circle{
+	private double height;
+	public Cylinder(){
+	
+	}
+	public Cylinder(double radius){
+		super.setRadius(radius);
+	}
+	public Cylinder(double radius,double height){
+		super.setRadius(radius);
+		setHeight(height);
+	}
+	public double getHeight(){
+		return height;
+	}
+	public double getVolume(){
+		double volume=super.getArea()*height;
+		return volume;
+	}
+	public void setHeight(){
+		this.height=height;
+	}
+	public String toString(){
+		String info = super.toString();
+		info+= "height : "+height+"\n";
+		return info;
+	}
+}
+
+class TestCylinder{
+	public static void main(String[] args){
+		Cylinder obj1 = new Cylinder(5.0,10.0);
+		System.out.println(obj1);
+		Cylinder obj2 = new Cylinder(5.0,3.0);
+		System.out.println(obj2);
+
+		
+		//실린더 가진 속성 반지름 area 높이 볼륨
+
+	}
+}

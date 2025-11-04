@@ -1,0 +1,16 @@
+interface IA{
+	void todo();
+}
+interface IB{
+	public abstract void todo();
+}
+class Some implements IA,IB{
+	@Override
+		public void todo(){
+	}
+}
+class InterfaceEx2{
+	public static void main(String[] args){
+
+	}
+}

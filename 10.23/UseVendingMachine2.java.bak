@@ -1,0 +1,239 @@
+//음료수 클래스
+class Drink{
+	//멤버 변수
+	private String name; //음료수 이름
+	private int price; //음료수 가격
+	private int stock; //음료수 재고
+
+	public Drink(String name, int price, int stock){
+		setName(name);
+		setPrice(price);
+		setStock(stock);
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public int getPrice(){
+		return price;
+	}
+
+	public int getStock(){
+		return stock;
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public void setPrice(int price){
+		this.price = price;
+	}
+
+	public void setStock(int stock){
+		this.stock = stock;
+	}
+
+	public String toString(){
+		return name + "(" + price +"원)" + stock + "개";
+	}
+}
+
+//자판기 클래스
+class VendingMachine{
+	private int amount; //잔액
+	private Drink drink1;
+	private Drink drink2;
+	private Drink drink3; //음료수
+	public final static int DRINK1 = 1; //음료수 번호
+	public final static int DRINK2 = 2;
+	public final static int DRINK3 = 3;
+
+
+	public VendingMachine(int amount, Drink drink1, Drink drink2, Drink drink3){
+		this.amount = amount;
+		this.drink1 = drink1;
+		this.drink2 = drink2;
+		this.drink3 = drink3;
+	}
+
+	public int getAmount(){
+		return amount;
+	}
+
+	public Drink getDrink1(){
+		return drink1;
+	}
+
+	public Drink getDrink2(){
+		return drink2;
+	}
+
+	public Drink getDrink3(){
+		return drink3;
+	}
+
+	public void setAmount(int amount){
+		this.amount = amount;
+	}
+
+	public void setDrink1(Drink drink1){
+		this.drink1 = drink1;
+	}
+
+	public void setDrink2(Drink drink2){
+		this.drink2 = drink2;
+	}
+
+	public void setDrink3(Drink drink3){
+		this.drink3 = drink3;
+	}
+
+	//음료수 판매
+	public Drink saleDrink(int num){
+		Drink drink = drink3;
+		if(num == DRINK1){
+				drink = drink1;
+			}else if(num == DRINK2){
+				drink = drink2;
+		}
+		drink.setStock(drink.getStock() - 1);
+		amount -= drink.getPrice();
+		System.out.println("음료수 " + drink.getName() + "을 판매하였습니다.");
+		return drink;
+	}
+
+	//거스름돈 반환
+	public int returnCash(){
+		System.out.println("거스름돈: " + amount + "원 반환되었습니다.");
+		setAmount(0);
+		return amount;
+	}
+}
+
+//소비자 클래스
+class Customer{
+	private int amount; //소비자 잔액
+	
+	public Customer(int amount){
+		setAmount(amount);
+	}
+
+	public int getAmount(){
+		return amount;
+	}
+
+	public void setAmount(int amount){
+		this.amount = amount;
+	}
+
+	//돈을 넣는다.
+	public void inputCash(VendingMachine vm, int amount){
+		vm.setAmount(vm.getAmount() + amount);
+		System.out.println("잔액 " + amount + "원 넣으셨습니다.");
+	}
+
+	//버튼을 누른다.
+	public void pushButton(VendingMachine vm, int button){
+		button = vm.DRINK3;
+
+		if(button == vm.DRINK1){
+			button = vm.DRINK1;
+		}else if(button == vm.DRINK2){
+			button = vm.DRINK2;
+		}else if(button == vm.DRINK3){
+			button = vm.DRINK3;
+		}else{
+			System.out.println("버튼을 잘못 눌렀습니다.");
+		}
+		vm.saleDrink(button);
+	}
+
+}
+
+//관리자 클래스
+class Manager{
+	private int drinkStock; //자판기 재고
+	private int amount; //자판기 내 잔액
+	private VendingMachine vm; //자판기 객체
+	private Drink drink1;
+	private Drink drink2;
+	private Drink drink3;
+
+	public Manager(int drinkStock, int amount){
+		setDrinkStock(drinkStock);
+		setAmount(amount);
+	}
+
+	public int getDrinkStock(){
+		return drinkStock;
+	}
+
+	public int getAmount(){
+		return amount;
+	}
+
+	public void setDrinkStock(int drinkStock){
+		this.drinkStock = drinkStock;
+	}
+
+	public void setAmount(int amount){
+		this.amount = amount;
+	}
+
+	//음료수 재고 채우기
+	public void refillDrink(int drinkNum, int stock){
+		Drink drink = drink3;
+		if(drinkNum == vm.DRINK1){
+			drink = drink1;
+		}else if(drinkNum == vm.DRINK2){
+			drink = drink2;
+		}else{
+			System.out.println("잘못 선택하셨습니다.");
+		}
+
+		drink.setStock(drink.getStock() + stock);
+		System.out.println("음료수" + drink.getName() + "의 재고가 " + stock + "만큼 채웠습니다.");
+	}
+
+	//번 돈 가져가기
+	//자판지 잔고를 비우기.
+	public void takeCash(VendingMachine vm){
+		this.amount = vm.getAmount();
+		vm.setAmount(0);
+		System.out.println("자판기 잔액" + this.amount + "원을 벌었습니다.");
+	}
+
+	//음료수 가격 바꾸기
+	public void changePrice(int drinkNum, int price){
+		Drink drink = drink3;
+		if(drinkNum == vm.DRINK1){
+			drink = drink1;
+		}else if(drinkNum == vm.DRINK2){
+			drink = drink2;
+		}
+		drink.setPrice(price);
+		System.out.println("음료수" + drink.getName() + "의 가격이 " + price + "로 변경되었습니다.");
+	}
+}
+
+class UseVendingMachine2{
+	public static void main(String[] args) {
+		Customer cu = new Customer(10000);
+		Manager man = new Manager(18, 10000);
+		Drink letsBe = new Drink("Let's Be", 1400, 5);
+		Drink maximTOP = new Drink("Maxim TOP", 2000, 6);
+		Drink water = new Drink("SamDaSoo", 150, 7);
+		VendingMachine vm = new VendingMachine(0, letsBe, maximTOP, water);
+
+		cu.inputCash(vm, 10000);
+		//cu.pushButton(vm, 1);
+		//vm.returnCash();
+		//man.takeCash(vm);
+
+		vm.saleDrink(3);
+		vm.setDrink3(vm.saleDrink(1));
+		vm.saleDrink(3);
+	}
+}

@@ -1,0 +1,10 @@
+import java.io.FileReader;
+class ExceptionEx4{
+
+	public static void makeException(){
+		FileReader fr = new FileReader("a.txt");
+	}
+	public static void main(String[] args){
+		
+	}
+}

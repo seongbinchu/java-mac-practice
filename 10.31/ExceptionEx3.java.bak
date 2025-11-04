@@ -1,0 +1,24 @@
+class ExceptionEx3{
+	public static void main(String[] args){
+		//예외처리아님.
+		try{
+		
+		}finally{
+		
+		}
+	}
+}
+
+//Exception
+
+//RuntimeException extend Exception
+
+//NullPointException, StringIndexOutOfBoundException... extend RuntimeException ...1
+
+//IOException , SQLException, FileNotFoundException ... extend Exception  ...2
+
+//모든 Exception RuntimeException 상속 받거나 안받거나 둘 중 하나 , 모든 Exception Exception 상속받음 
+
+//  ...1 런타임예외 상속받은 에러들 예외처리 강제 x 컴파일 가능
+
+//  ...2 런타임예외 상속안받는 에러들 예외처리 강제 컴파일에러

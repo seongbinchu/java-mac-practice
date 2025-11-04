@@ -1,0 +1,35 @@
+/*
+	다차원 배열
+*/
+import java.util.Arrays;
+class ArrEx2{
+	public static void main(String[] args){
+		int[][] arr = new int[3][2];
+
+		arr[1][1]=7;
+
+		int[] arrSub =arr[2];
+		arrSub[0]=6;
+		//arr[2][0]=6; 같은것
+
+		/*for(int[] temp : arr ){
+			System.out.println(temp);
+			for(int n : temp){
+				System.out.println(n);
+			}
+		}*/
+
+		for(int i=0;i<arr.length;i++){
+			int[] temp = arr[i];
+			for(int j=0;j<temp.length;j++){
+				System.out.println(temp[j]);
+			}
+		}
+		/*temp -> arr[i] 치환
+		for(int i=0;i<arr.length;i++){
+			for(int j=0;j<arr[i].length;j++){
+				System.out.println(arr[i][j]);
+			}
+		}*/
+	}
+}

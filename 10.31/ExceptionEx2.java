@@ -1,0 +1,30 @@
+class ExceptionEx2{
+	public static void main(String[] args){
+		String str = "abcde";
+		try{
+			System.out.println(str.substring(1,7));
+		}catch(StringIndexOutOfBoundsException se){
+			System.out.println("길다");
+			//catch여러개가능
+			//단 예외는 동시에 발생할 수 없다
+		}catch(NullPointerException ne){
+			System.out.println("길다");
+		}catch(StringIndexOutOfBoundsException | NullPointerException e	//중복제거 *비트or(비트합)* 비트and(비트곱)){
+			System.out.println("길다"); 
+		}finally{
+			//try,catch 둘다 실행보장 x 
+			//finally 실행보장
+			//자원해제
+		}System.out.println("end of main");
+
+		String str2 = null;
+		try{
+			System.out.println(str2.substring(1,7));
+		}catch(NullPointerException ne){
+			System.out.println(str2.length());
+		}finally{
+			System.out.println("in finally block");
+		}
+		System.out.println("end of main");
+	}
+}

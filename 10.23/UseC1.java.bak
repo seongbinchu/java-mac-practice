@@ -1,0 +1,90 @@
+class A{
+	private int num1;
+	private double num2;
+
+	public A(int num1){
+		setNum1(num1);
+	}
+	public A(int num1,double num2){
+		setNum1(num1);
+		setNum2(num2);
+	}
+	public int getNum1(){
+		return num1;
+	}
+	/*public double getNum2(){
+		return num2;*/
+	}
+	public void setNum1(int num1){
+		this.num1=num1;
+	}
+	public void setNum2(double num2){
+		this.num2=num2;
+	}
+	public String toString(){
+		String info = "num1 : "+num1 +"\n";
+		info += "num2 : "+ num2 ;
+		return info;
+	}
+
+}
+
+class B extends A{
+	private String words;
+
+	public B(int num1,String words){
+		super(num1);
+		setWords(words);
+	}
+	public B(int num1,double num2,String words){
+		super(num1,num2);
+		setWords(words);
+	}
+
+	public String getWords(){
+		return words;
+	}
+	public void setWords(String words){
+		this.words=words;
+	}
+	@Override
+	public String toString(){
+		String info =super.toString()+"\n";
+		info +="words : "+words;
+		return info;
+	}
+}
+
+class C extends B{
+	private boolean ok;
+	public C(int num1,String words,boolean ok){
+		super(num1,words);
+		setOk(ok);
+	}
+	public C(int num1,double num2,String words,boolean ok){
+		super(num1,num2,words);
+		setOk(ok);
+	}
+	public boolean isOk(){
+		return ok;
+	}
+	public void setOk(boolean ok){
+		this.ok=ok;
+	}
+	public String toString(){
+		String info =super.toString()+"\n";
+		info += "ok : "+ok+"\n";
+		return info;
+	}
+
+}
+class UseC1{
+	public static void main(String[] args){
+		C c = new C(100,3.14,"hello",true);
+		System.out.println(c);
+		C c1 = new C(100,"bye",false);
+		System.out.println(c1);
+		B b1 = new B(1,"test");
+		System.out.println(b1);
+	}
+}

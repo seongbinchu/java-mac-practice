@@ -1,0 +1,6 @@
+Area(why)
+-member
++toString
+final Some SOME = new Some(); //객체주소값고정
+SOME.num=5;//멤버변수변경가능
+SOME = new Some();//새객체주소할당불가능

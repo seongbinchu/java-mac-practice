@@ -1,0 +1,57 @@
+class Car{
+	private String model;
+	private int price;
+
+	public Car(String model, int price){
+		setModel(model);
+		setPrice(price);
+	}
+
+	public String getModel(){
+		return model;
+	}
+	public int getPrice(){
+		return price;
+	}
+	public void setModel(String model){
+		this.model = model;
+	}
+	public void setPrice(int price){
+		this.price = price;
+	}
+	public String toString(){
+		String info ="model : "+ model +"\n";
+		info+= "price : "+price;
+		return info;
+	}
+}
+class SportCar extends Car{
+	private boolean turbo;
+
+	public SportCar(String model,int price,boolean turbo){
+		super(model,price);
+		setTurbo(turbo);
+	}
+	/*public SuperCar(){
+		super car();
+	} =>아무것도안쓰면 생기는것*/
+
+	public boolean isTurbo(){
+		return turbo;
+	}
+	public void setTurbo(boolean turbo){
+		this.turbo =turbo;
+	}
+	@Override
+	public String toString(){
+		String info = super.toString() + "\n";
+		info += "turbo : "+turbo;
+		return info;
+	}
+}
+class UseSportCar{
+	public static void main(String[] args){
+		SportCar c = new SportCar("c63AMG",12000,true);
+		System.out.println(c);
+	}
+}

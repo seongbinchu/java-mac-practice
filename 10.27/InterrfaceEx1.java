@@ -1,0 +1,19 @@
+interface Ifirst{
+	public static final int MAX = 10;
+	// int MAX =10; 같은말임 public만 가능하기 때문
+	abstract public void todo();
+	// void todo(); 접근제한자 public 만 가능 추상메소드만 가능하기 때문에 생략가능
+}
+class FirstImp implements Ifirst{
+	//인터페이스를 구현하는 클래스는 반드시 추상메소드를 오버라이드 해야한다
+	@Override
+	public void todo(){
+		System.out.println("잠온다잠온다잠온다");
+	}
+}
+class InterrfaceEx1{
+	public static void main(String[] args){
+		FirstImp i1 = new FirstImp();
+		i1.todo();
+	}
+}

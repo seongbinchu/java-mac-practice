@@ -1,0 +1,36 @@
+/*
+예외(exception) 처리하는 방법
+해결은 불가능
+1. 예외가 발생하면 , 대신 할 일을 지정한다(try-catch) try{예외가 발생할 수 있는 연산}catch(){}
+
+*/
+class ExceptionEx1{
+
+	public static void divide(int num1,int num2){
+		try{
+			// 예외 발생 가능한 연산
+			int result = num1/num2;
+			//result 선언위치때문에 같이 블록안에
+			System.out.println(result);
+		}catch(ArithmeticException ae){
+			//예외발생시 할 일
+			System.out.println("0");
+		
+			//ae가 주는 메세지만 가져옴
+			String msg = ae.getMessage();
+			System.out.println(msg);
+			//ae 런타임오류 전부
+			ae.printStackTrace();
+		}
+	}
+	public static void main(String[] args){
+		divide(8,2);
+		divide(8,0);	//exception / by zero
+		//JVM   가짐 call-stack
+		//stack 입출구 같고 값 쌓임
+		//input 1.a => 2.b => 3.c
+		//output 1.c=>2.b=>1.a
+		//LastInfirstOut LIFO구조
+		//FirstInfirtsOut FIFO구조 queue(터널 입구 출구다름)
+	}
+}
