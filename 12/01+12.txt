@@ -1,0 +1,36 @@
+spEl사용해서 
+<util:properties id="db" location="/WEB-INF/spring/properties/db_type.properties" />
+	<!--  spEL -->
+	<util:properties id="dbcp" location="/WEB-INF/spring/properties/#{db['name']}_dbcp.properties"/>
+	<util:properties id="sql" location="/WEB-INF/spring/properties/#{db['name']}_sql.properties"/>
+		<bean id ="ds" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="#{dbcp['driverClassName']}" />
+		<property name="url" value="jdbc:mysql://#{dbcp['url']}" />
+		<property name="username" value="#{dbcp['username']}"/>
+		<property name="password" value="#{dbcp['password']}"/>
+		<property name="initialSize" value="#{dbcp['initialSize']}"/>
+		<property name="maxActive" value="#{dbcp['maxActive']}"/>
+		<property name="maxIdle" value="#{dbcp['maxIdle']}"/>
+		<property name="minIdle" value="#{dbcp['minIdle']}"/>
+propertiese file 로 sql 연결하는 법
+
+mysql.sql.properties
+farmers.insert=INSERT INTO farmers(fname,faddr,ftel) VALUES(?,?,?)
+farmers.delete=DELETE FROM farmers WHERE fid=?
+
+	@Value("#{sql['farmers.insert']}")
+	private String insert;
+	@Value("#{sql.['farmers.delete']}")
+	private String delete;
+
+Book controller jsp start 
+
+=> book
+
+=>> rwpositroy
+
+==>> rowmapper
+
+==>메소드만들기
+==>서비스만들기
+==>Book controller

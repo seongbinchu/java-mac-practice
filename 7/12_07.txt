@@ -1,0 +1,126 @@
+spring 두둥탁
+
+spring DispatcherServlet
+[누구에게 일을 시킬것? 일의 결과 속성에 입력]
+ 제공
+
+일의 결과 
+=> 속성에 넣거나 forward redirect
+우리가 직접 처리해야함
+==================================================================================================
+- HomeController
+@RequestMapping 
+@RequestMapping("/other")
+	public String other(@RequestParam(value="myParam",required=false) String yourParam) {
+		// 굳이 다른이름의 파라미터를 사용하는 방법
+		// required @RequestParam = false, defaultValue="hi"
+ => 파라미터 필수 X	annotation 안쓰면 기본값 false 쓰면 true
+ => 밸류 값 없으면 defalutValue 값 기본값
+		System.out.println(yourParam);
+		return "other";
+	}
+
+-cmd 역할
+-value uri 역할 ex) value = "/" method= RequestMethod.GET
+		=>	GET방식으로 ROOT로 요청이 들어오면
+			아래 메소드 home()으로 처리한다
+	@RequestMapping(value={"/other","/another"},
+			method=RequestMethod.GET)
+	 배열도 가능
+! 파라미터에 넣을 수 있는 것
+	- request , response , session
+	- Model
+	- @RequestParam
+	- @ModelAttribute => 속성이름 : 클래스명[첫글자 소문자로]
+	- @PathVariable   => 생략안됨
+! 리턴 값 
+	-String => viewName , redirect...
+	-ModelAndView
+	-void = > mapping 값 = view name
+@RequestMapping(value="/formProcessing",method=RequestMethod.POST)
+	public String process(MyObject o,Model model) {
+		model.addAttribute("MyObject", o);
+		return "result";
+	}
+파라미터로 MyObject 넣었을 때 받는값이 MyObject 멤버변수랑 동일하면
+스프링이 알아서 객체만들어줌
+Model도 생략가능
+-MyObject o 앞에 @ModelAttribute 생략돼있음
+사용할때 자동으로 첫글자 소문자로 변경한 객체생성
+다른 이름 쓰고싶으면 @ModelAttribute("yourObejct") Myobject o
+
+@RequestMapping("/path/{some}")
+	public String getSome(@PathVariable("some") String some) {
+		System.out.println("some : " + some);
+		return "other";
+	}
+@PathVariable 생략불가
+==================================================================================================
+
+Spring MVC Flow 중
+Model => request 속성
+View => jsp
+
+servlet-context.xml => Spring 기본 제공 서블릿하는일
+view네임 리턴하는 컨트롤러 메소드 리턴값 받아서
+앞에 프리픽스(경로) 붙이고 suffix(.jsp)붙임
+
+Plain Old Java Object 클래스
+=>Spring 기반임 , 형태와 리턴 , 파라미터 값이 자유로움
+ex.리턴되는 뷰에게 속성 날리고 싶으면 파라미터 request 넣기
+Spring에서는 request 잘안쓰고 model사용
+
+새로운 controller만들 때 스프링이 관리해야함[인지]
+=> bean 스피링이 관리하는 객체
+빈으로 등록 필요
+빈으로 등록하는 annotation
+- @Component [최상위] : bean으로 등록함
+
+- @Controller[Component 상속]  controller 역할로 bean 등록
+- @Repository[Component 상속] : DAO클래스 역할로 bean 등록
+- @Service[Component 상속] : CMD 클래스 역할로 bean 등록
+- @Configuration[Component 상속] : bean 등록 기능을 수행
+
+Spring에서 bean으로 등록하는 3가지 방법
+! bean으로 관리되는 객체는 singleton
+1. annotation [내가 만든 클래스가 아닐 때 안됨]
+	=> @Autowired	[D.I( dependency injection )]  
+		=> otherAnnotationBean [ injection  할 Bean이 1개가 아닌 경우 => 500에러]
+			=> 1.주입할 Bean 지정 변수명을 bean id로 지정한다.
+				=> 변수명이 길거나 지정 : @Component("bean1") 어노테이션 옆에 bean id 지정
+			=> 2. @AutoWired 어노테이션 밑에 @Qualifier(beanid) 어노테이션 사용
+
+같은 타입 객체 여러개 불가능
+new Some해서 쓸 수 밖에 없어서 지정해서 사용 불가능
+
+2. Configuration 이용
+	CGLIB library 필요
+@Configuration
+public class MyConfiguration {
+	@Bean
+	public Some firstSome() {
+		Some s = new Some();
+		s.setNum(200);
+		return s;
+	}
+}
+메소드 이름이 bean id
+
+! 같은 주소값 같은 객체 싱글톤형태 새로만드는것이 아닌 secondSome호출하면 원래있던 bean 가지고옴
+System.out.println(System.identityHashCode(secondSome));
+System.out.println(System.identityHashCode(ss.getS()));
+
+3. XML 설정
+! root-context.xml 공유하는 자원관리
+<bean id="zealot2" class="org.green.first.Zealot">
+		<constructor-arg value="100"/>	생성자를 사용
+</bean>
+<bean id="zealot3" class="org.green.first.Zealot">
+		<property name="power" value="70"/> setter 이용
+</bean>	
+<bean id="myGateWay" class="org.green.first.GateWay">
+		<constructor-arg ref="zealot2"/> 다른 객체 참조 
+</bean>
+
+
+

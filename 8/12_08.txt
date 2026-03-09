@@ -1,0 +1,22 @@
+DB access resource ++
+=> DBCP	[RREpository , pool , connection]
+
+<resource mapping="/res/**" location="/resources/script/" />
+
+res 위치로 참조시 /resources/script/ 참조
+
+${ pageContext.request.contextPath}/res/script.js사용시
+
+${ pageContext.request.contextPath}/resources/script/사용
+
+Spring JDBC
+BasicDataSource기반 필수
+
+================================================================
+
+
+basicdatasource
+
+================================================================
+
+JdbcTemplate

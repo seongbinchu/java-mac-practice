@@ -1,0 +1,10 @@
+Autowired 찾는법
+등록된 bean 중에 타입으로 찾는다
+
+
+<c:if test="${not empty loginUser and loginUser.uid eq a.writer}">
+    <form action="delete" method="post" style="display:inline;">
+        <input type="hidden" name="no" value="${a.no}">
+        <button type="submit">삭제</button>
+    </form>
+</c:if>
