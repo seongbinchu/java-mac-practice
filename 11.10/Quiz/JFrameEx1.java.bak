@@ -1,0 +1,42 @@
+// swing
+// 창
+// J =>스윙에관련된 클래스
+import javax.awt.*;
+import javax.swing.*;
+class JFrameEx1 {
+	public static void main(String[] args){
+		JFrame f = new JFrame("이거슨 창");
+
+		
+
+		Dimension size = new Dimension(400,400);
+		f.setSize(size);
+		Point location = new Point(100,100);
+		f.setLocation(location);
+
+		//f.setSize(400,400);
+		//f.setLocation(100,100);
+		//객체만들필요없게 오버로딩
+		
+		Rectangle rectangle = new Rectangle(location,size);
+		f.setBounds(rectangle);
+
+		// f.setBounds(100,100,400,400);
+
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		
+		/*
+			종료버튼 기능 정의
+			EXIT_ON_CLOSE
+			프로그램 종료
+			DISPOSE_ON_CLOSE
+			해당 창만 종료
+			HIDE_ON_CLOSE
+			해당 창의 가시성 제거
+			DO_NOTHING_ON_CLOSE
+			아무것도 하지마라
+		*/
+		f.setVisible(true);
+	}
+}

@@ -1,0 +1,44 @@
+// collection 순서 없음 객체대상과 가변길이 두가지 특성
+// 원소 빼는 기능없음
+// 원소 접근 다른 객체로
+import java.util.*;
+class CollectionEx1{
+	public static void main(String[] args){
+		Collection<String> col = new HashSet<String>();//인터페이스기 때문에 객체생성 안됨 하위사용
+
+		System.out.println(col.size());
+		
+		col.add("apple");
+		col.add("123");
+
+		System.out.println(col.size());
+
+		col.clear();
+
+		System.out.println(col.size());
+
+		col.add("banana");
+		col.add("태권V");
+		col.add("1234");
+		col.add("kiwi");
+
+		System.out.println(col);	//collection 내 toString이미 존재
+
+		System.out.println(col.contains("태권V"));
+		
+		System.out.println(col.isEmpty());
+
+		col.remove("banana");
+
+		System.out.println(col);
+
+		Iterator<String> itr = col.iterator();
+		while(itr.hasNext()){
+			System.out.println(itr.next());
+
+			/*String element = itr.next();
+			System.out.println(element);*/
+		}
+
+	}
+}

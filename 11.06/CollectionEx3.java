@@ -1,0 +1,44 @@
+import java.util.*;
+
+class CollectionEx3{
+	public static void main(String[] args){
+		Collection<String> col1 = new Vector<String>();
+		Collection<String> col2 = new Vector<String>();
+
+		col1.add("a");
+		col1.add("b");
+		col1.add("c");
+		col1.add("d");
+		col1.add("e");
+
+		col2.add("a");
+		col2.add("f");
+		col2.add("g");
+		col2.add("h");
+		col2.add("i");
+
+		col1.addAll(col2);
+
+		System.out.println(col1);
+
+		col1.removeAll(col2);
+
+		System.out.println(col1);
+
+		col1.retainAll(col2);
+		System.out.println(col1);	//교집합
+
+		Object[] arr = col2.toArray();
+		System.out.println(Arrays.toString(arr));
+
+		String[] arr2 = col2.toArray(new String[0]);
+		System.out.println(Arrays.toString(arr2));
+		//Object다운캐스팅 때문에 해당 사용법 이용
+		//밑 사용법 원소보다 긴 배열 만들면 null 들어감 잘안 사용
+		//길이가 0인 배열 넣으면 모든 원소가 들어감 해당 방법 더 이용
+
+		String[] arr3 = new String[2];
+		arr3 = col2.toArray(new String[8]);	//=>원소보다 긴 배열 만들면 null 넣음
+		System.out.println(Arrays.toString(arr3));
+	}
+}

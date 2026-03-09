@@ -1,0 +1,45 @@
+/*
+	입출력 안쓰는 프로그램 없음
+	성능에 큰 영향
+	읽기/쓰기 입력/출력
+	*파일컨트롤 =? 영속성 데이터 저장가능한것 파일밖에 없음
+	영어 및 몇가지 기호는 1byte로 표기 가능하나 다른언어는 2byte이상 필요
+	=>1byte로 읽고 쓰기가 안됨 = >한번에 읽고 쓰기가 안된다.(char연산 존재이유 [한글자를 하나의 값으로 본다][영어가 아닌 다른 언어])
+
+
+	I/O
+		읽기(읽는 단위가 - 인 연산)
+			-byte
+				-<<abstract>>InputStream
+			-char
+				-<<abstract>>Reader
+					ex.FileReader File을 char단위로 읽는 클래스
+					[...Reader,Writer,InputStream,OutputStream] => ... = 1.대상(File) , 2.방법(Buffered[버퍼를 이용해서 영어권 namedMonster?])
+				
+
+		쓰기
+			-byte
+				-<<abstract>>OutputStream
+			-char
+				-<<abstract>>Writer
+
+
+*/
+import java.io.*;
+class IOEx1{
+	public static void main(String[] args){
+		//f1,f2,f3 모두 같은 파일을 나타냄 disc상에 존재 보장x =? logical ? physical? 알수없음
+		//=>logical file <-> physical file
+
+		File f = new File("c:\\temp\\a.tet");
+
+		File dir = new File("c:\\temp");
+		//경로를나타내는 파일
+
+		File f2 = new File(dir,"a.txt");
+
+		File f3 = new File("c:\\temp","a.txt");
+
+
+	}
+}

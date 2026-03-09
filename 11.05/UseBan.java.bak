@@ -1,0 +1,131 @@
+import java.util.Arrays;
+
+class Subject{
+	private String title;
+	private int score;
+	
+	public String getTitle(){
+		return title;
+	}
+	public int getScore(){
+		return score;
+	}
+	public void setTitle(String title){
+		this.title =title;
+	}
+	public void setScore(int score){
+		this.score=score;
+	}
+	public Subject(String title , int score){
+		setTitle(title);
+		setScore(score);
+	}
+}
+
+class Student{
+	private String name;
+	private Subject[] subjects;
+
+	public String getName(){
+		return name;
+	}
+	public Subject[] getSubjects(){
+		return subjects;
+	}
+	public void setName(String name){
+		this.name = name;
+	}
+	public void setSubjects(Subject... subjects){
+		this.subjects=subjects;
+	}
+
+	public Student(String name,Subject... subjects){
+		setName(name);
+		setSubjects(subjects);
+	}
+
+	public void studentSumAndAvg(){
+		int sum = 0;
+		Subject[] subject = getSubjects();
+		for(int i =0;i<subject.length;i++){
+			sum += subject[i].getScore();
+		}
+		double avg = (double)sum / subject.length;
+		System.out.println(getName()+" 총점 : "+sum);
+		System.out.println(getName()+" 평균 : "+avg);
+	}
+}
+
+class Ban{
+	private String banName;
+	private Student[] students;
+
+	public String getBanName(){
+		return banName;
+	}
+	public Student[] getStudents(){
+		return students;
+	}
+	public void setBanName(String banName){
+		this.banName=banName;
+	}
+	public void setStudents(Student... students){
+		this.students=students;
+	}
+
+	public Ban(String banName,Student... students){
+		setBanName(banName);
+		setStudents(students);
+	}
+
+	public void subjectSumAndAvg(String subjectTitle){
+		int sum = 0;
+		int studentsCount=0;
+
+		for(Student student : students){
+		
+			for(Subject subjects : student.getSubjects()){
+				if(subjects.getTitle().equals(subjectTitle)){
+					sum+=subjects.getScore();
+					studentsCount++;
+				}
+			}
+		}
+		double avg = (double)sum / studentsCount;
+
+		System.out.println(subjectTitle+" 총점 : "+sum);
+		System.out.println(subjectTitle+" 평균 : "+avg);
+	}
+	
+}
+
+class UseBan{
+	public static void main(String[] args){
+		Student s1 = new Student ("추성빈",
+		new Subject("국어",10),
+		new Subject("수학",20),
+		new Subject("영어",30)
+	);
+		Student s2 = new Student ("성",
+		new Subject("국어",40),
+		new Subject("수학",50),
+		new Subject("영어",60)
+	);
+		Student s3 = new Student ("빈",
+		new Subject("국어",70),
+		new Subject("수학",80),
+		new Subject("영어",90)
+	);
+		Ban b1 = new Ban("1반",s1,s2,s3);	
+		
+		b1.subjectSumAndAvg("국어");
+		b1.subjectSumAndAvg("수학");
+		b1.subjectSumAndAvg("영어");
+		s1.studentSumAndAvg();
+		s2.studentSumAndAvg();
+		s3.studentSumAndAvg();
+		//값을 얻는것 값을 비교하는것은
+		//그값의 소유자에서 해야함
+		//과목명을 비교하려면 subject에서
+	}	
+}

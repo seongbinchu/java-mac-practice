@@ -1,0 +1,25 @@
+import java.util.*;
+class ListEx2{
+	public static void main(String[] args){
+		Vector<String> vec = new Vector<String>();
+
+		vec.add("a");
+		vec.add("b");
+		vec.add("c");
+		vec.add("d");
+		vec.add("e");
+		vec.add("f");
+		// Vector에 존재하는 기능
+		int idx = vec.indexOf("c");
+		System.out.println(idx);
+
+		String[] arr = vec.toArray(new String[0]);
+		//list =>array
+		System.out.println(Arrays.toString(arr));
+		//array=>list
+		Arrays.asList();
+		List<String> list = Arrays.asList(new String[] {"a","b","c"});
+
+		list.add("x");
+	}
+}

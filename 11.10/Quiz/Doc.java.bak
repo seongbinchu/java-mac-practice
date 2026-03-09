@@ -1,0 +1,30 @@
+import java.util.Vector;
+public class Doc{
+	private Vector<String> tags;
+	private String contents;
+
+	public Doc(){}
+
+	public Doc(Vector<String> tags,String contents){
+		super();
+		this.tags = tags;
+		this.contents = contents;
+	}
+	public Vector<String> getTags(){
+		return tags;
+	}
+
+	public void setTags(Vector<String> tags){
+		this.tags = tags;
+	}
+	public String getContents(){
+		return contents;
+	}
+	public void setContents(String contents){
+		this.contents = contents;
+	}
+	@Override
+	public String toString(){
+		return "Doc [tags="]+tags+",contents="+contents+"]";
+	}
+}

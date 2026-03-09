@@ -1,0 +1,35 @@
+import java.util.*;
+class OtherKey{
+	public String value;
+
+	public OtherKey(String value){
+		this.value=value;
+	}
+	@Override
+	public int hashCode(){
+		return value.hashCode();
+	}
+	@Override
+	public boolean equals(Object o){
+		if(o == null || !(o instanceof OtherKey)){
+			return false;
+		}
+		OtherKey key = (OtherKey)o;
+		return value.equals(key.value);
+	}
+}
+class MapEx3{
+	public static void main(String[] args){
+		HashMap<OtherKey,String> map = new HashMap<OtherKey,String>();
+		
+		map.put(new OtherKey("abc"),"A");
+		map.put(new OtherKey("def"),"B");
+		map.put(new OtherKey("ghi"),"C");
+		map.put(new OtherKey("zkl"),"D");
+		map.put(new OtherKey("mno"),"E");
+		map.put(new OtherKey("pqr"),"F");
+		
+		System.out.println(map.get(new OtherKey("jkl")));
+		
+	}
+}

@@ -1,0 +1,22 @@
+import java.util.*;
+class Lotto{
+	public static void main(String[] args){
+		Random r = new Random();
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(set.size() != 6){
+			set.add(r.nextInt(45)+1);
+		}set.add(r.nextInt(45)+1);
+		System.out.println(set);
+	}
+}
+
+/*
+몇번 반복할 것인지 입력받아서 정함
+추첨함
+중복없는 당첨번호 6+1(보너스번호 정렬x)개를 선정
+게임결과 : 꽝or5등or4등or3등or2등or1등
+선택번호 알려주고
+일치번호 알려주고
+당첨횟수알려주고
+
+*/

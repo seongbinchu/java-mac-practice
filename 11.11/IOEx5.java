@@ -1,0 +1,45 @@
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+class IOEx5 implements Comparator <File>{
+	public int compare(File f1,File f2){
+		if(f1.isDirectory() && f2.isFile()){
+			return -1;
+		}
+		if(f1.isFile() && f2.isDirectory()){
+			return 1;
+		}
+		return f1.getName().compareToIgnoreCase(f2.getName());
+	}
+	static String tabs = "\t\t\t";
+
+	public static void main(String[] args){
+		File dir = new File("c:\\Windows");
+	
+		if(dir.exists()){
+			File[] files = dir.listFiles();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd a hh:mm");
+			StringBuilder sb = new StringBuilder();
+			Date date = new Date();
+		
+			//Arrays.sort(files);
+
+			for(File temp: files){
+				String fileName = temp.getName();
+				if(temp.isDirectory()){
+					sb.append("["+fileName+"]");
+				}
+				sb.append("(");
+				date.setTime(temp.lastModified());
+				sb.append(sdf.format(date));
+				if(temp.isFile()){
+					sb.append(", " + (temp.length() /1024) + "KB");
+				}
+				sb.append(")");
+				sb.append("\n");
+			}
+			Arrays.sort(File f1,File f2);
+			System.out.println(sb);
+		}
+	}
+}

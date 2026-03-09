@@ -1,0 +1,13 @@
+import java.util.*;
+class SetEx2{
+	public static void main(String[] args){
+		Random r = new Random();
+		
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(set.size() != 6){
+			int num = r.nextInt(45)+1;
+			set.add(num);	
+			
+		}
+	}
+}

@@ -1,0 +1,31 @@
+interface iterator2{
+	boolean hasNext();
+	Object next();
+}
+class Vector2Iterator implements Iterator2{
+	@Override
+	public boolean hasNext(){
+		return true;
+	}
+	@Override
+	public Object next(){
+		return new Object();
+	}
+}
+interface Collection2{
+	Iterator2 iterator(); 
+}
+
+class Vector2 implements Collection2{
+	@Override
+	Iterator2 iterator(){
+		return new Vector2Iterator();
+	}
+}
+class UseVector2{
+	public static void main(String[] args){
+		Vector2 vec = new Vector2();
+		Iterator2 itr = vec.iterator();
+		Iterator2 itr = Vector2Iterator;
+	}
+}

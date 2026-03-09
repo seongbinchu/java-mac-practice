@@ -1,0 +1,17 @@
+import java.util.*;
+class Some{
+
+}
+class ListEx4{
+	public static void main(String[] args){
+		ArrayList<String> list = new ArrayList<String>();
+
+		for(char c = 'a'; c<='z'; c++){
+			list.add(String.valueOf(c));
+		}
+
+		System.out.println(list);
+
+		Object o = new Some();
+	}
+}

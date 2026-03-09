@@ -1,0 +1,96 @@
+import java.util.*;
+interface HumanManager {
+	void add(Human h);
+	Human[] search(String name);
+	boolean delete(String name);
+}
+class Human {
+	private String name;
+	private int age;
+	private String mail;
+	private String tel;
+
+	public String getName(){
+		return name;
+	}
+	public String getMail(){
+		return mail;
+	}
+	public String getTel(){
+		return tel;
+	}
+	public int getAge(){
+		return age;
+	}
+	public void setName(String name){
+		this.name=name;
+	}
+	public void setMail(String mail){
+		this.mail=mail;
+	}
+	public void setTel(String tel){
+		this.tel=tel;
+	}
+	public void setAge(int age){
+		this.age=age;
+	}
+
+	public Human(String name,String mail,String tel,int age){
+		setName(name);
+		setMail(mail);
+		setTel(tel);
+		setAge(age);
+	}
+
+	public Human(String name){
+		setName(name);
+	}
+	public String toString(){
+		String info = "name : "+name+"\n";
+		info += "mail : "+mail+"\n";
+		info += "tel : "+tel+"\n";
+		info += "age : "+age+"\n";
+		return info;
+	}
+}
+class NumberBook implements HumanManager{
+	Map<String,Human> humans = new Hashtable<String,Human>();
+	Human[] temp = new Human[0];
+
+	public Human[] getHumans(Human... humans){
+		return humans;
+	}
+	public void setHumans(){
+		this.humans = humans;
+	}
+	
+	public NumberBook(Human... humans){
+		this.humans = new Hashtable<String,Human>();
+		for(Human h: humans){
+			add(h);
+		}
+	}
+
+	public void add(Human h){
+	}
+	public Human[] search(String name){
+		return temp;
+	}
+	public boolean delete(String name){
+		return true;
+	}
+
+	
+}
+class UseNumberBookMap{
+	public static void main(String[] args){
+		NumberBook n1 = new NumberBook(
+			"眠己后",new Human("眠己后","mail1","tel1",29),
+			"碍己后",new Human("碍己后","mail2","tel2",20),
+			"辫己后",new Human("辫己后","mail3","tel3",27),
+			"剧己后",new Human("剧己后","mail4","tel4",25)
+		
+		
+		);
+	}
+}

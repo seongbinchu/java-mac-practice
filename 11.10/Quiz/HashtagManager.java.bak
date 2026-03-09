@@ -1,0 +1,85 @@
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.Vector;
+
+public class HashtagManager{
+	private Hashtable<String , Vector<Doc>> data;
+
+	public HashtagManager(){
+		data = new Hashtable<String , Vector<Doc>>();
+	}
+
+	public void addTag(Doc doc){
+		Vector<String> tags = doc.getTags();
+		for(String tag : tags){
+			Vector<Doc> docList = data.get(tag);
+			if(docList == null){
+				docList = new Vector<Doc>();
+				data.put(tag,docList);
+			}
+			docList.add(doc);
+		}
+	}
+
+	public Set<String> getTags(){
+		return data.keySet();
+	}
+	public Vector<Doc> find(String... tags){
+		Vector<Doc> result =null;
+		for(String tag : tags){
+			Vector<Doc> list = data.get(tag);
+			if(result == null){
+				result = new Vector<Doc>(list);
+			}else{
+				Vector<Doc> temp = new Vector<Doc>(list);
+				result.retainAll(temp);
+			}
+		}
+		return result;
+	}
+
+	public Set<String> findCoElements(String... tags){
+		Set<String> result =null;
+		Vector<String> list =null;
+		for(String tag : tags){
+			list = find(tag);
+			if(list != null && result == null){
+				result = new HashSet<String>();
+			}
+			for(Doc doc : list){
+				Vector<String> temp = new Vector<String>(doc.getTags());
+				for(String tempTag : temp){
+					result.add(tempTag);
+				}
+			}
+		}
+
+		if(result != null){
+			for(String tag : tags){
+				result.remove(tag);
+			}
+		}
+		return result;
+	}
+	
+	public int getSize(){
+		return data.size();
+	}
+
+	@Override
+	public String toString(){
+		StringBuffer buf = new StringBuffer();
+		for(String tag : getTags()){
+			buf.append(tag);
+			buf.append(" -> ");
+
+			buf.append(data.get(tag));
+			buf.append("\n");
+		}
+
+		return buf.toString();
+	}
+}
+
+

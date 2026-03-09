@@ -1,0 +1,109 @@
+import java.util.*;
+
+
+
+class Lotto{
+	private HashSet<Integer> game;
+	private HashSet<Integer> winning;
+	private HashSet<Integer> test;
+	private int count =0;
+	private int rank =0;
+	
+	private static final int FIRST =1;
+	private static final int SECOND=2;
+	private static final int THIRD =3;
+	private static final int FORTH =4;
+	private static final int FIVTH =5;
+	Random r = new Random();
+	int bonus = r.nextInt(45)+1;
+	public HashSet<Integer> lotto(){
+		
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(set.size() != 6){
+			set.add(r.nextInt(45)+1);
+		}set.add(bonus);
+		winning = set;
+		return winning;
+	}
+	public HashSet<Integer> lotto2(){
+		
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(set.size() != 5){
+			set.add(r.nextInt(45)+1);
+		}set.add(bonus);
+		game = set;
+		return game;
+	}
+	public void user(){
+		HashSet<Integer> test = new HashSet<Integer>();
+		Scanner scan = new Scanner(System.in);
+		System.out.print("몇개를 살까요? : ");
+		int num = scan.nextInt();
+		System.out.println("당첨번호를 추첨 합니다");
+		lotto();
+		System.out.println("당첨번호 : "+winning+"\n*마지막 번호가 보너스 번호입니다.");
+		
+		for(int i=0;i<num;i++){
+			lotto2();
+			for(int n : winning){
+				if(game.contains(n)){
+					test.add(n);
+					count++;
+					if(count==5 && game.contains(bonus)){
+						count=7;
+					}
+				}
+			}
+			switch(count){
+				case 3: 
+					System.out.println("5등  선택번호 : "+game +" 일치번호 ->" );
+					break;
+				case 4:
+					System.out.println("4등 선택번호 : "+game+" 일치번호 ->" );
+					break;
+				case 5:
+					System.out.println("3등 선택번호 : "+game +" 일치번호 ->" );
+					break;
+				case 6:
+					System.out.println("1등 선택번호 : "+game +" 일치번호 ->" );
+					break;
+				case 7:
+					System.out.println("2등 선택번호 : "+game + "일치번호 ->" );
+					break;
+				default:
+					System.out.println("꽝 선택번호 : "+game+ "일치번호 ->");
+			}
+		}
+		
+		
+	}
+}
+
+
+class UseLotto{
+	public static void main(String[] args){
+
+		Lotto l1 = new Lotto();
+  
+		l1.user();
+			
+			 
+	}
+}
+
+
+/*
+몇번 반복할 것인지 입력받아서 정함
+추첨함
+중복없는 당첨번호 6+1(보너스번호 정렬x)개를 선정
+게임결과 : 꽝or5등or4등or3등or2등or1등
+선택번호 알려주고
+일치번호 알려주고
+당첨횟수알려주고
+Random r = new Random();
+		HashSet<Integer> set = new HashSet<Integer>();
+		while(set.size() != 6){
+			set.add(r.nextInt(45)+1);
+		}set.add(r.nextInt(45)+1);
+		System.out.println(set);
+*/

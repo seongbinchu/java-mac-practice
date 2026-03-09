@@ -1,0 +1,29 @@
+//나이로 내림차순 정렬 , Human 코드 변경불가
+//Desc 내림차순
+import java.util.Comparator;
+import java.util.Arrays;
+class OrderByAgeDesc implements Comparator<Human>{
+
+	// compareTo this 기준 compare 첫파라미터 기준
+	@Override
+	public int compare(Human h1,Human h2){
+		return (h1.getAge() - h2.getAge() )*-1; 
+	}
+}
+
+class UseHuman2{
+	public static void main(String[] args){
+		Human[] arr = {
+			new Human("A",20),
+			new Human("H",22),
+			new Human("E",30),
+			new Human("T",41),
+			new Human("C",23),
+			new Human("B",55),
+			new Human("D",27),
+			new Human("T",27)
+		};
+		Arrays.sort(arr,new OrderByAgeDesc());
+		
+	}
+}

@@ -1,0 +1,24 @@
+import java.io.*;
+class Quiz{
+	
+	// path를 삭제하라
+	// 단, path 하위에 파일과 디렉토리가 있을 경우 모두 삭제하고 삭제해야 한다.
+	public static void deleteAll(String path){
+		File dir = new File(path);
+		File[] files = dir.listFiles();
+		try{
+			for(File temp : files){
+			temp.delete();
+			dir.delete();
+			}
+		}catch(NullPointerException e){
+			System.out.println("a");
+		}
+		
+	}
+
+	public static void main(String[] args){
+		Quiz q = new Quiz();
+		q.deleteAll("C:\\Users\\GGG\\Desktop\\test\\test1\\test2");
+	}
+}
