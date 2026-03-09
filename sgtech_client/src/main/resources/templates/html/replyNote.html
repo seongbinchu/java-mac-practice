@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - 답장 쓰기</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+        <main class="content">
+            <div class="header-row">
+                <div class="welcome-msg">
+                    환영합니다. <span th:if="${session.loginUser != null}" th:text="${session.loginUser.emp_name}">사용자</span>님
+                    | <span style="color: var(--primary-color); font-weight: bold;">쪽지 답장</span>
+                </div>
+            </div>
+
+            <div class="note-write-container">
+                
+                <form th:action="@{/note/sendReply}" method="post">
+                    
+                    <div class="input-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 8px;">받는 사람</label>
+                        <input type="text" class="modern-input" 
+                               th:value="${targetName}" readonly 
+                               style="background-color: #f8fafc; color: #555; cursor: not-allowed; width: 100%;">
+                        
+                        <input type="hidden" name="receiver_name" th:value="${targetId}">
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 8px;">제목</label>
+                        <input type="text" name="msg_title" class="modern-input" placeholder="답장 제목을 입력하세요" required style="width: 100%;">
+                    </div>
+
+                    <input type="hidden" name="sender_name" th:if="${session.loginUser != null}" th:value="${session.loginUser.user_no}">
+
+                    <div class="input-group" style="margin-bottom: 30px;">
+                        <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 8px;">내용</label>
+                        <textarea name="msg_content" class="content-textarea" 
+                                  style="min-height: 400px; width: 100%; resize: none;" 
+                                  placeholder="답장 내용을 입력하세요." required></textarea>
+                    </div>
+
+                    <div class="write-footer-btns" style="text-align: right;">
+                        <button type="button" class="btn-outline" onclick="history.back()" style="margin-right: 5px;">취소</button>
+                        <button type="submit" class="btn-primary-large">전송</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

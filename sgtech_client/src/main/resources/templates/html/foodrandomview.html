@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - 오늘의 점심 추천</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+<style>
+    .view-section { background: #fff; padding: 20px; border-radius: 10px; }
+    
+    #map {
+    width: 100%;
+    height: 450px; /* 혹은 부모에 맞게 100% */
+    background-color: #eee; /* 로딩 전 배경색 */
+}
+
+
+#map img {
+    max-width: none !important;
+    max-height: none !important;
+}
+    .lunch-container { max-width: 100%; margin: 0 auto; background: white; padding: 10px; }
+    .status-badge { display: inline-block; padding: 5px 12px; background: #e3f2fd; color: #1976d2; border-radius: 15px; font-size: 13px; margin-bottom: 15px; font-weight: bold; }
+    
+    #map { width: 100%; height: 500px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; background-color: #eee; position: relative; }
+    
+    .lunch-info-area { width: 100%; min-height: 120px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #fff9f0; font-size: 15px; line-height: 1.6; box-sizing: border-box; resize: none; color: #444; margin-top: 10px; }
+    
+    .btn-group { margin-bottom: 20px; text-align: left; }
+    .pick-btn { padding: 12px 30px; font-size: 16px; background-color: #ff9800; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .pick-btn:hover { background-color: #e68900; transform: translateY(-2px); }
+    .pick-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+    
+    .list-btn { padding: 12px 25px; font-size: 16px; background-color: #607d8b; color: white; border: none; border-radius: 25px; cursor: pointer; margin-left: 10px; }
+
+    #loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); 
+               display:flex; justify-content:center; align-items:center; z-index:10; border-radius:10px; font-weight:bold; }
+
+    /* 말풍선 커스텀 */
+    .iw-wrap { 
+    padding: 15px; 
+    width: 280px;      /* 고정 폭 설정 (너무 넓으면 모바일에서 깨짐) */
+    font-size: 13px; 
+    line-height: 1.5;
+    white-space: normal; /* 글자 줄바꿈 허용 */
+    word-break: break-all; /* 긴 단어도 강제로 줄바꿈 */
+}
+
+.iw-title { 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #d32f2f; 
+    margin-bottom: 8px; 
+    border-bottom: 2px solid #eee; 
+    padding-bottom: 5px;
+    /* 제목이 너무 길 경우 처리 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; 
+}
+
+.iw-dist-badge { 
+    display: inline-block; 
+    background: #1976d2; 
+    color: white; 
+    padding: 2px 8px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+    margin-bottom: 8px; 
+}
+
+</style>
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+        <main class="content">
+            <div class="welcome-msg">
+                
+                <th:block th:if="${currentBoard != null}">
+                    | <span th:text="${currentBoard.b_name} + ' 게시판'" style="color: white; font-weight: bold;">게시판이름</span>
+                </th:block>
+            </div>
+
+            <section class="view-section">
+                <div class="view-header">오늘의 점심 추천</div>
+
+                <div class="lunch-container">
+                    <div class="status-badge" id="addressTag">📍 위치 파악 중...</div>
+                    
+                    <div class="btn-group">
+                        <button id="pickBtn" class="pick-btn" onclick="pickRandomFood()" disabled>데이터 로딩 중...</button>
+                       <button type="button" class="btn-list"
+					onclick="location.href='/foodlist'">목록으로</button>
+                    </div>
+
+                    <div id="map">
+                        <div id="loader">🗺️ 맛집 정보를 불러오는 중입니다...</div>
+                    </div>
+
+                    <textarea id="info" class="lunch-info-area" readonly>지도가 로드되면 맛집 추천을 시작할 수 있습니다.</textarea>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+
+<script type="text/javascript">
+    const APP_KEY = 'd4b30a74e605ae4d61e65b8e77db1bc6';
+    const TARGET_ADDRESS = "부산 중구 비프광장로 25 1층"; 
+    const RADIUS_KM = 3; 
+
+    let map, centerLat, centerLng;
+    let foodList = [];
+    let usedIndexSet = new Set();
+    let currentMarker = null;
+    let currentInfoWindow = null;
+
+    window.onload = function() {
+        const script = document.createElement('script');
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${APP_KEY}&libraries=services&autoload=false`;
+        script.onload = () => {
+            // 2. SDK 로드 완료 후 내부 로직 실행
+            kakao.maps.load(() => {
+                initService(); 
+            });
+        };
+        document.head.appendChild(script);
+    };
+
+    function initService() {
+        const geocoder = new kakao.maps.services.Geocoder();
+        
+        console.log("주소 검색 시작:", TARGET_ADDRESS);
+
+        geocoder.addressSearch(TARGET_ADDRESS, function(result, status) {
+            console.log("검색 상태:", status);
+
+            if (status === kakao.maps.services.Status.OK) {
+                centerLat = parseFloat(result[0].y);
+                centerLng = parseFloat(result[0].x);
+                
+                const addrTag = document.getElementById("addressTag");
+                if(addrTag) addrTag.innerText = `📍 기준: ${TARGET_ADDRESS}`;
+                
+                const container = document.getElementById('map');
+                const options = { 
+                    center: new kakao.maps.LatLng(centerLat, centerLng), 
+                    level: 4 
+                };
+                
+                map = new kakao.maps.Map(container, options);
+
+                const fixMapLayout = () => {
+                    if (map) {
+                        map.relayout();
+                        map.setCenter(new kakao.maps.LatLng(centerLat, centerLng));
+                        console.log("지도 레이아웃 보정 실행됨");
+                    }
+                };
+
+                setTimeout(fixMapLayout, 100);  
+                setTimeout(fixMapLayout, 600);  
+                setTimeout(fixMapLayout, 1500); 
+
+                if (window.ResizeObserver) {
+                    const ro = new ResizeObserver(() => fixMapLayout());
+                    ro.observe(container);
+                }
+
+                new kakao.maps.Marker({ 
+                    map: map, 
+                    position: new kakao.maps.LatLng(centerLat, centerLng) 
+                });
+
+                console.log("지도 초기화 및 보정 예약 완료");
+                loadFoodData();
+
+            } else {
+                console.error("주소 검색 실패. 이유:", status);
+                document.getElementById("addressTag").innerText = "❌ 주소를 찾을 수 없습니다.";
+            }
+        });
+    }
+
+    function loadFoodData() {
+        const serviceKey = "NKQ2XlCx4B3RtPtSC02%2FDPddJK2HHSfHtZT9ETamnNf2JOJCMkRoSxDK9xdH6HTkGl2g0dYrVQyu84r%2FutoM9A%3D%3D";
+        const url = `https://apis.data.go.kr/6260000/FoodService/getFoodKr?serviceKey=${serviceKey}&pageNo=1&numOfRows=300&resultType=json`;
+        
+        fetch(url).then(res => res.json()).then(data => {
+            foodList = data.getFoodKr.item.filter(item => {
+                return getDistance(centerLat, centerLng, parseFloat(item.LAT), parseFloat(item.LNG)) <= RADIUS_KM;
+            });
+            
+            document.getElementById("loader").style.display = "none";
+            const btn = document.getElementById("pickBtn");
+            btn.disabled = false; 
+            btn.innerText = "오늘 뭐 먹지? 뽑기!";
+            document.getElementById("info").value = `준비 완료! 주변 3km 이내 맛집 ${foodList.length}개를 찾았습니다.`;
+        }).catch(err => {
+            console.error("데이터 로드 실패:", err);
+            document.getElementById("loader").innerText = "❌ 데이터를 가져오지 못했습니다.";
+        });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2-lat1)*Math.PI/180; 
+        const dLon = (lon2-lon1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        return 2*R*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function pickRandomFood() {
+        if (!foodList.length || !map) return;
+        if (usedIndexSet.size === foodList.length) usedIndexSet.clear();
+
+        let index;
+        do { index = Math.floor(Math.random() * foodList.length); } while (usedIndexSet.has(index));
+        usedIndexSet.add(index);
+        const food = foodList[index];
+
+        const rawDist = getDistance(centerLat, centerLng, parseFloat(food.LAT), parseFloat(food.LNG));
+        const distanceStr = rawDist < 1 ? `${Math.round(rawDist * 1000)}m` : `${rawDist.toFixed(2)}km`;
+
+        if (currentMarker) currentMarker.setMap(null);
+        if (currentInfoWindow) currentInfoWindow.close();
+
+        const foodPos = new kakao.maps.LatLng(food.LAT, food.LNG);
+        currentMarker = new kakao.maps.Marker({ map: map, position: foodPos });
+
+        map.relayout();
+
+        const content = `
+            <div class="iw-wrap">
+                <div class="iw-title">${food.MAIN_TITLE}</div>
+                <div class="iw-dist-badge">거리: ${distanceStr}</div>
+                <div style="font-size:12px;">
+                    <strong>메뉴:</strong> ${food.RPRSNTV_MENU || '정보없음'}<br>
+                    <strong>전화:</strong> ${food.CNTCT_TEL || '정보없음'}
+                </div>
+            </div>
+        `;
+
+        currentInfoWindow = new kakao.maps.InfoWindow({ content: content });
+        currentInfoWindow.open(map, currentMarker);
+        map.panTo(foodPos);
+
+        document.getElementById("info").value = `[오늘의 추천]\n상호명: ${food.MAIN_TITLE} (${distanceStr})\n대표메뉴: ${food.RPRSNTV_MENU}\n주소: ${food.ADDR1}`;
+    }
+</script>
+</body>
+</html>

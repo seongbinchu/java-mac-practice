@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>스마트 그린텍</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content-area-fluid">
+			<div class="dashboard-grid">
+
+				<div class="dash-card">
+					<div class="dash-card-header">
+						<span>📢 공지사항</span> <a th:href="@{/list(b_no=9999)}"
+							style="font-size: 12px; color: #999; text-decoration: none;">더보기
+							+</a>
+					</div>
+					<div class="dash-card-body"
+						style="justify-content: flex-start; padding-top: 10px;">
+						<ul class="dash-notice-list">
+							<li th:each="notice, stat : ${noticeList}"><span> <span
+									class="badge-box" th:classappend="bg-green" th:text="공지">뱃지</span>
+									<a th:href="@{/view(art_no=${notice.art_no})}"
+									th:text="${notice.art_title}"
+									style="color: #333; text-decoration: none; font-weight: bold; margin-left: 5px;">제목</a>
+							</span> <span th:text="${notice.art_date}"
+								style="font-size: 12px; color: #999;">날짜</span></li>
+							<li th:if="${#lists.isEmpty(noticeList)}"
+								style="justify-content: center; color: #999;">등록된 공지사항이
+								없습니다.</li>
+						</ul>
+					</div>
+				</div>
+
+
+				<div class="dash-card no-header">
+					<div class="video-container">
+						<iframe
+							src="https://www.youtube.com/embed/mYdt6CAwKAY?autoplay=1&mute=1&loop=1&playlist=mYdt6CAwKAY&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&enablejsapi=1"
+							allow="autoplay; encrypted-media" frameborder="0"> </iframe>
+
+						<div class="video-overlay">
+							<h2 class="company-name">(주)스마트 그린텍</h2>
+							<p class="company-slogan">AI와 데이터로 만드는 미래 농업의 혁신</p>
+						</div>
+					</div>
+				</div>
+				<div class="dash-card">
+					<div class="dash-card-header">
+						<span id="cal-title"></span>
+					</div>
+					<div class="dash-card-body">
+						<div class="cal-grid" id="cal-grid"></div>
+					</div>
+				</div>
+
+				<div class="dash-card">
+					<div class="dash-card-header">
+						<span>🍽️ 오늘의 점심 추천</span>
+					</div>
+					<div class="dash-card-body">
+						<div id="dash-map"
+							style="width: 100%; height: 180px; border-radius: 8px; margin-bottom: 10px; background: #eee;"></div>
+						<div id="lunch-result-box">
+							<div class="lunch-main">
+								<h3 id="dash-food-name" style="margin: 0; font-size: 16px;">맛집
+									찾는 중...</h3>
+								<span id="dash-food-dist" class="dist-badge">-</span>
+							</div>
+							<div class="lunch-detail"
+								style="font-size: 13px; color: #666; margin-top: 5px;">
+								<p style="margin: 3px 0;">
+									<strong>🍴 메뉴:</strong> <span id="dash-food-menu">-</span>
+								</p>
+								<p style="margin: 3px 0;">
+									<strong>📍 주소:</strong> <span id="dash-food-addr">-</span>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="dash-card">
+					<div class="dash-card-header">
+						<span>🔒 1:1 문의</span> <a th:href="@{/list(b_no=7777)}"
+							style="font-size: 12px; color: #999; text-decoration: none;">더보기
+							+</a>
+					</div>
+					<div class="dash-card-body">
+						<table class="board-table">
+							<thead>
+								<tr>
+									<th style="width: 60px;">번호</th>
+									<th>제목</th>
+									<th style="width: 80px;">상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="q, s : ${questionList}"
+									th:if="${s.count <= 5 AND (q.user_no == session.loginUser.user_no OR session.loginUser.user_role == 'ADMIN' OR session.loginUser.user_role == 'MASTER')}">
+
+									<td th:text="${q.art_no}" style="text-align: center;"></td>
+
+									<td><a th:href="@{/view(art_no=${q.art_no})}"
+										th:text="${q.art_title}"></a></td>
+
+									<td style="text-align: center;"><span
+										th:classappend="${q.art_tag == '답변완료' ? 'bg-blue' : 'bg-green'}"
+										class="badge-box"
+										th:text="${q.art_tag == '답변완료' ? '답변완료' : '답변대기'}"> </span></td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(questionList)}">
+									<td colspan="3"
+										style="text-align: center; color: #999; padding: 20px 0;">문의
+										내역이 없습니다.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="dash-card">
+					<div class="dash-card-header">
+						<span>📂 프로젝트</span>
+					</div>
+					<div class="dash-card-body">
+						<table class="board-table">
+							<thead>
+								<tr>
+									<th>게시판번호</th>
+									<th>타이틀</th>
+									<th>우선순위</th>
+									<th>마감일</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="prj : ${MyProject}">
+									<td th:text="${prj.prj_board}" style="text-align: center;"></td>
+									<td><a th:href="@{/list(b_no=${prj.prj_board})}"
+										th:text="${prj.prj_name}"></a></td>
+									<td th:text="${prj.prj_priority}" style="text-align: center;"></td>
+									<td th:text="${prj.end_date}" style="text-align: center;"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+		</main>
+	</div>
+
+	<div id="schModal" class="schedule-modal">
+		<div class="sch-box">
+			<h3 id="schDateTitle" style="margin-top: 0; color: #333;">날짜</h3>
+			<input type="text" id="schInput" class="sch-input"
+				placeholder="일정을 입력하세요 (예: 회의)">
+
+			<div class="sch-list-preview" id="schListPreview"></div>
+
+			<div style="margin-top: 15px;">
+				<button type="button" class="btn-sch-save" onclick="saveSchedule()">저장</button>
+				<button type="button" class="btn-sch-close"
+					onclick="closeSchModal()">닫기</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+        const APP_KEY = 'd4b30a74e605ae4d61e65b8e77db1bc6';
+        const TARGET_ADDRESS = "부산 중구 비프광장로 25 1층";
+        let dashMap;
+        let mySchedules = [];  
+        let selectedDate = '';  
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initCalendar();
+            loadKakaoMapSDK();
+        });
+
+        function initCalendar() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const paddedMonth = String(month + 1).padStart(2, '0');
+
+            document.getElementById('cal-title').innerText = `${year}. ${paddedMonth}`;
+            
+            fetch(`/schedule/my?yearMonth=${year}-${paddedMonth}`)
+                .then(res => res.json())
+                .then(data => {
+                    mySchedules = data;  
+                    renderCalendar(year, month);
+                })
+                .catch(err => {
+                    console.error("일정 로드 실패", err);
+                    renderCalendar(year, month);
+                });
+        }
+
+        function renderCalendar(year, month) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            let html = '';
+            
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            days.forEach(d => html += `<div class="cal-day-title">${d}</div>`);
+            
+            for(let i=0; i<firstDay; i++) html += `<div class="cal-item"></div>`;
+            
+            for(let i=1; i<=lastDate; i++) {
+                const dayStr = String(i).padStart(2, '0');
+                const fullDate = `${year}-${String(month+1).padStart(2, '0')}-${dayStr}`;
+                
+                const hasSch = mySchedules.some(s => s.sch_date === fullDate);
+                const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === i);
+                
+                let classes = 'cal-item';
+                if(isToday) classes += ' cal-today';
+                if(hasSch) classes += ' has-schedule'; 
+
+                html += `<div class="${classes}" onclick="openSchModal('${fullDate}')">
+                            <span>${i}</span>
+                         </div>`;
+            }
+            document.getElementById('cal-grid').innerHTML = html;
+        }
+
+        function openSchModal(date) {
+            selectedDate = date;
+            document.getElementById('schDateTitle').innerText = date;
+            document.getElementById('schInput').value = '';
+            
+            const listDiv = document.getElementById('schListPreview');
+            const daySchedules = mySchedules.filter(s => s.sch_date === date);
+            
+            if(daySchedules.length > 0) {
+                listDiv.innerHTML = daySchedules.map(s => `<div><span>• ${s.sch_content}</span> <a href="/schedule/remove/${s.sch_no}"><font color="red">X</font></a></div>`).join('');
+            } else {
+                listDiv.innerHTML = '<div style="color:#ccc;">일정이 없습니다.</div>';
+            }
+
+            document.getElementById('schModal').style.display = 'flex';
+            document.getElementById('schInput').focus();
+        }
+        
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scheduleRemove = urlParams.get('scheduleRemove');
+
+            if (scheduleRemove === 'success') {
+                alert("해당 스케쥴이 삭제되었습니다.");
+            }
+            if (scheduleRemove) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        };
+
+        function closeSchModal() {
+            document.getElementById('schModal').style.display = 'none';
+        }
+
+        function saveSchedule() {
+            const content = document.getElementById('schInput').value;
+            if(!content.trim()) { alert("내용을 입력하세요."); return; }
+
+            const formData = new URLSearchParams();
+            formData.append('date', selectedDate);
+            formData.append('content', content);
+
+            fetch('/schedule/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+            .then(res => res.text())
+            .then(result => {
+                if(result === 'success') {
+                    alert("일정이 등록되었습니다.");
+                    closeSchModal();
+                    initCalendar();  
+                } else {
+                    alert("등록 실패");
+                }
+            });
+        }
+
+        function loadKakaoMapSDK() {
+            const script = document.createElement('script');
+            script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${APP_KEY}&libraries=services&autoload=false`;
+            script.onload = () => { kakao.maps.load(() => initDashboardService()); };
+            document.head.appendChild(script);
+        }
+
+        function initDashboardService() {
+            const geocoder = new kakao.maps.services.Geocoder();
+            geocoder.addressSearch(TARGET_ADDRESS, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    const centerLat = parseFloat(result[0].y);
+                    const centerLng = parseFloat(result[0].x);
+                    const container = document.getElementById('dash-map');
+                    dashMap = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(centerLat, centerLng), level: 4 });
+                    
+                    setTimeout(() => { dashMap.relayout(); dashMap.setCenter(new kakao.maps.LatLng(centerLat, centerLng)); }, 500);
+                    new kakao.maps.Marker({ map: dashMap, position: new kakao.maps.LatLng(centerLat, centerLng) });
+                    
+                    loadFoodData(centerLat, centerLng);
+                }
+            });
+        }
+
+        function loadFoodData(lat, lng) {
+            const serviceKey = "NKQ2XlCx4B3RtPtSC02%2FDPddJK2HHSfHtZT9ETamnNf2JOJCMkRoSxDK9xdH6HTkGl2g0dYrVQyu84r%2FutoM9A%3D%3D";
+            const url = `https://apis.data.go.kr/6260000/FoodService/getFoodKr?serviceKey=${serviceKey}&pageNo=1&numOfRows=100&resultType=json`;
+
+            fetch(url).then(res => res.json()).then(data => {
+                foodList = data.getFoodKr.item.filter(item => getDistance(lat, lng, item.LAT, item.LNG) <= 1);
+                if (foodList.length > 0) pickRandomFood(lat, lng);
+            });
+        }
+
+        function pickRandomFood(centerLat, centerLng) {
+            const food = foodList[Math.floor(Math.random() * foodList.length)];
+            const foodPos = new kakao.maps.LatLng(food.LAT, food.LNG);
+            const dist = getDistance(centerLat, centerLng, food.LAT, food.LNG);
+            
+            document.getElementById("dash-food-name").innerText = food.MAIN_TITLE;
+            document.getElementById("dash-food-dist").innerText = dist < 1 ? `${Math.round(dist*1000)}m` : `${dist.toFixed(1)}km`;
+            document.getElementById("dash-food-menu").innerText = food.RPRSNTV_MENU || '정보없음';
+            document.getElementById("dash-food-addr").innerText = food.ADDR1;
+
+            new kakao.maps.Marker({ map: dashMap, position: foodPos });
+            dashMap.panTo(foodPos);
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+            return 2*R*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+    </script>
+</body>
+</html>

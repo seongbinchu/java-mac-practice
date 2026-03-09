@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>게시글 상세 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content" style="padding-top: 20px;">
+
+			<div class="article-container">
+
+				<div class="article-header">
+					<div class="board-badge">
+						<span class="badge-text"
+							th:text="${currentBoard != null ? currentBoard.b_name : '게시판'}">게시판명</span>
+					</div>
+
+					<div class="title-wrapper"
+						style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+						<h1 class="article-title" th:text="${article.art_title}"
+							style="margin: 0;">게시글 제목</h1>
+
+						<div class="admin-btns">
+							<div
+								th:if="${ (param.url_from!= null and param.url_from[0] == 'deleteArticle') and (session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN')}">
+								<a th:href="@{/master/deletedArticle}">
+									<button class="btn-modify">게시글 삭제 관리 돌아가기</button>
+								</a>
+							</div>
+							<div
+								th:if="${ (param.url_from!= null and param.url_from[0] == 'deleteReply') and (session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN')}">
+								<a th:href="@{/master/deletedReply}">
+									<button class="btn-modify">댓글 삭제 관리 돌아가기</button>
+								</a>
+							</div>
+						</div>
+					</div>
+
+
+
+					<div class="article-info-bar">
+						<div class="author-group">
+							<div class="avatar"
+								th:unless="${currentBoard != null and currentBoard.b_no == 6666}"
+								th:text="${#strings.substring(article.emp_name, 0, 1)}">홍</div>
+							<div class="text-info">
+								<span class="author-name"> <span
+									th:if="${currentBoard != null and currentBoard.b_no == 6666}">익명</span>
+									<span
+									th:unless="${currentBoard != null and currentBoard.b_no == 6666}"
+									th:text="${article.emp_name}">이름</span>
+								</span> <span class="author-details"
+									th:unless="${currentBoard != null and currentBoard.b_no == 6666}"
+									th:text="${article.rnk_name} + ' · ' + ${article.dept_name}">직급
+									· 부서</span>
+							</div>
+						</div>
+						<div class="meta-group">
+							<span class="date" th:text="${article.art_date}">2026.02.09</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="article-divider"></div>
+
+				<div class="article-body"
+					th:utext="${#strings.replace(article.art_content, '
+', '<br>')}">
+					본문 내용</div>
+
+				<div class="article-footer-actions">
+					<div class="left-actions">
+						<button type="button" class="btn-reaction like"
+							th:onclick="doToggleLike([[${article.art_no}]])">
+							👍 추천 <span th:text="${article.art_like}">0</span>
+						</button>
+						<button type="button" class="btn-reaction report"
+							th:onclick="doToggleReport([[${article.art_no}]])">🚨 신고
+						</button>
+					</div>
+
+					<div class="right-files" th:if="${article.art_file_name != null}">
+						<a th:href="@{/file/{no}(no=${article.art_no})}" class="file-link">
+							📎 <span th:text="${article.art_file_name}">파일명.png</span>
+						</a>
+					</div>
+				</div>
+
+				<div class="article-divider thin"></div>
+
+				<div class="article-comments">
+					<h3 class="comment-section-title">
+						댓글 <span class="count" th:text="${#lists.size(replyList)}">0</span>
+					</h3>
+
+					<div class="comment-form">
+						<textarea id="replyText" placeholder="댓글을 남겨보세요."></textarea>
+						<button type="button" onclick="addReply()">등록</button>
+					</div>
+
+					<div class="comment-list" id="reply-list">
+						<div th:each="reply : ${replyList}" class="comment-row reply-item">
+							<div class="comment-avatar"
+								th:unless="${currentBoard != null and currentBoard.b_no == 6666}"
+								th:text="${#strings.substring(reply.emp_name, 0, 1)}">김</div>
+							<div class="comment-main">
+								<div class="comment-top reply-item-header">
+									<span
+										th:unless="${currentBoard != null and currentBoard.b_no == 6666}"
+										class="c-name" th:text="${reply.emp_name}">이름</span> <span
+										th:if="${currentBoard != null and currentBoard.b_no == 6666}"
+										class="c-name">익명</span> <span class="c-date"
+										th:text="${reply.re_date}">날짜</span>
+								</div>
+
+								<div class="reply-content-area">
+									<div class="comment-text reply-item-content"
+										th:text="${reply.re_content}">내용</div>
+								</div>
+
+								<div class="comment-tools reply-item-actions"
+									th:if="${session.loginUser != null}">
+									<th:block
+							th:with="isOwner=${session.loginUser.user_no == reply.user_no}, 
+                                           isAdmin=${session.loginUser.user_role == 'MASTER' or 
+                                           (session.loginUser.user_role == 'ADMIN' and session.loginUser.admin_b_no == currentBoard.b_no)}">
+                                           
+										
+
+										<span th:if="${isOwner}" class="tool-btn edit-btn"
+											th:onclick="showEditForm(this, [[${reply.re_no}]])">수정</span>
+
+										<span th:if="${isOwner or isAdmin}" class="tool-btn del"
+											th:onclick="deleteReply([[${reply.re_no}]])">삭제</span>
+									</th:block>
+								</div>
+							</div>
+						</div>
+
+						<div th:if="${#lists.isEmpty(replyList)}" class="no-comment-msg">
+							첫 번째 댓글을 남겨보세요.</div>
+					</div>
+				</div>
+
+				<div class="article-nav-btns">
+					<button class="btn-back"
+						th:onclick="|location.href='@{/list(b_no=${article.b_no})}'|">
+						← 목록으로</button>
+
+					<div class="btn-group-right" th:if="${session.loginUser != null}">
+						<th:block
+							th:with="isOwner=${session.loginUser.user_no == article.user_no}, 
+                                           isAdmin=${session.loginUser.user_role == 'MASTER' or 
+                                           (session.loginUser.user_role == 'ADMIN' and session.loginUser.admin_b_no == currentBoard.b_no)}">
+
+							<button th:if="${isOwner}" class="btn-modify"
+								th:onclick="|location.href='/edit?art_no=${article.art_no}'|">수정</button>
+
+							<button th:if="${isOwner or isAdmin}" class="btn-remove"
+								th:onclick="deleteArticle([[${article.art_no}]], [[${article.b_no}]])">삭제</button>
+						</th:block>
+					</div>
+				</div>
+
+			</div>
+		</main>
+	</div>
+
+	<script th:inline="javascript">
+	function addReply() {
+        const content = document.getElementById('replyText').value.trim();
+        if (!content) { alert("내용을 입력해주세요."); return; }
+        fetch('/reply/write', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ 
+                art_no: /*[[${article.art_no}]]*/ 0, 
+                re_content: content })
+        }).then(res => res.text()).then(result => {
+            if (result === "success") location.reload();
+            else alert("로그인이 필요합니다.");
+        });
+    }
+
+    function deleteReply(reNo) {
+        if(!confirm("댓글을 삭제하시겠습니까?")) return;
+        fetch('/reply/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ re_no: reNo })
+        }).then(res => res.text()).then(result => { if(result === "success") location.reload(); });
+    }
+
+    function showEditForm(btn, reNo) {
+        const item = btn.closest('.reply-item');
+        const contentArea = item.querySelector('.reply-content-area');
+        const originalText = contentArea.innerText;
+        contentArea.innerHTML = `<textarea class="edit-textarea" style="width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid #ddd;">${originalText}</textarea>`;
+        item.querySelector('.reply-item-actions').innerHTML = `
+            <span class="action-link save" onclick="saveEdit(this, ${reNo})" style="cursor:pointer; color:blue; margin-right:10px; font-size:14px;">저장</span>
+            <span class="action-link" onclick="location.reload()" style="cursor:pointer; color:gray; font-size:14px;">취소</span>`;
+    }
+
+    function saveEdit(btn, reNo) {
+        const newContent = btn.closest('.reply-item').querySelector('.edit-textarea').value.trim();
+        if(!newContent) return alert("내용을 입력해주세요.");
+        fetch('/reply/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ re_no: reNo, re_content: newContent })
+        }).then(res => res.text()).then(result => { if(result === "success") location.reload(); });
+    }
+
+    function deleteArticle(artNo) {
+        if(!confirm("정말 삭제하시겠습니까?")) return;
+        fetch('/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ art_no: artNo })
+        }).then(res => res.text()).then(data => { if(data === "success") location.href = "/foodlist"; });
+    }
+    
+       
+        function deleteArticle(artNo, bNo) {
+            if(!confirm("게시글을 삭제하시겠습니까? 관련 댓글도 모두 삭제될 수 있습니다.")) return;
+
+            fetch('/delete', {  
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if(result === "success") {
+                    alert("게시글이 삭제되었습니다.");
+                    location.href = '/list?b_no=' + bNo; 
+                } else if(result === "no_auth") {
+                    alert("삭제 권한이 없습니다.");
+                } else {
+                    alert("삭제 실패");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            });
+        }
+        
+        function doToggleLike(artNo) {
+            if(!confirm("이 게시글을 추천하시겠습니까?")) return;
+
+            fetch('/api/like', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "success") {
+                    alert("추천되었습니다!");
+                    location.reload(); 
+                } else if (result === "login_required") {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                } else {
+                    alert("추천 실패");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            });
+        }
+
+        function doToggleReport(artNo) {
+            const reason = prompt("신고 사유를 입력해주세요.");
+            if (reason === null) return; 
+            if (reason.trim() === "") {
+                alert("신고 사유를 입력해야 합니다.");
+                return;
+            }
+
+            const bNo = /*[[${article.b_no}]]*/ 0; 
+
+            fetch('/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo, b_no: bNo, reason: reason })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "success") {
+                    alert("신고가 접수되었습니다.");
+                } else if (result === "login_required") {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                } else {
+                    alert("신고 실패");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            });
+        }
+    </script>
+</body>
+</html>

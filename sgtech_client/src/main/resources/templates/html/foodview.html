@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>맛집 상세 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+<style>
+    /* 1. 헤더 레이아웃 (배지/날짜/제목) */
+    .food-header-container {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    .header-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .food-date-top {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+    .food-title-row {
+        margin: 0;
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1.4;
+        word-break: break-all;
+    }
+
+    /* 2. 본문 공통 스타일 */
+    #view-map { width: 100%; height: 350px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e2e8f0; display: none; }
+    .food-info-container { background: #f8fafc; padding: 25px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f1f5f9; }
+    .res-info-box { white-space: pre-wrap; background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; color: #475569; font-size: 0.95rem; }
+    .info-label { font-weight: bold; color: #6366f1; min-width: 90px; display: inline-block; }
+    .reply-item-content { white-space: pre-wrap; }
+
+    /* 🚩 3. 댓글 위 버튼 영역 (중앙 정렬 수정) */
+    .action-button-group {
+        display: flex;
+        justify-content: center; /* 우측에서 중앙으로 변경 */
+        gap: 15px;              /* 간격을 살짝 넓힘 */
+        margin: 40px 0 20px 0;   /* 위아래 여백을 넉넉히 주어 구분감 부여 */
+        padding-bottom: 25px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .btn-action-list { background: #64748b; color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+    .btn-action-list:hover { background: #475569; }
+    .btn-action-del { background: #ef4444; color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+    .btn-action-del:hover { background: #dc2626; }
+
+    /* 4. 커스텀 오버레이 */
+    .custom-overlay {
+        position: relative; bottom: 50px; border-radius: 6px; border: 1px solid #ccc; border-bottom: 3px solid #6366f1;
+        background: #fff; padding: 8px 15px; text-align: center; white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 14px; font-weight: bold; color: #1e293b;
+    }
+    .custom-overlay::after {
+        content: ''; position: absolute; width: 11px; height: 9px; left: 50%; margin-left: -6px; bottom: -9px;
+        background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png');
+    }
+</style>
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+        <main class="content">
+            <div class="view-container">
+
+                <div class="food-header-container">
+                    <div class="header-top-row">
+                        <span class="food-badge" style="margin:0;">🍴 맛집 추천</span>
+                        <span class="food-date-top" th:text="${article.art_date}">2026-02-24</span>
+                    </div>
+                    <h1 class="food-title-row" th:text="${article.art_title}">맛집 제목</h1>
+                </div>
+
+                <div th:if="${article.art_file_name != null}" style="margin-bottom: 20px;">
+                    <img th:src="@{/file/{no}(no=${article.art_no})}" style="width: 100%; border-radius: 12px;" alt="맛집 사진">
+                </div>
+
+                <h3 style="font-size: 18px; color: #334155; margin-bottom: 15px;">📍 위치 정보</h3>
+                <div id="view-map"></div>
+
+                <div class="food-info-container">
+                    <div id="info-section" class="res-info-box">정보를 불러오는 중...</div>
+                    <div style="margin-bottom: 10px;"><span class="info-label">🍴 추천 메뉴</span> <span id="menu-section"></span></div>
+                    <div style="margin-bottom: 10px;"><span class="info-label">👍 장점</span> <span id="plus-section"></span></div>
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                    <div style="font-size: 1.1rem; font-weight: bold; color: #1e293b;">📝 한줄평</div>
+                    <div id="review-section" style="margin-top: 10px; line-height: 1.6;"></div>
+                </div>
+
+                <div class="article-footer-actions">
+                    <div class="left-actions">
+                        <button type="button" class="btn-reaction like" th:onclick="doToggleLike([[${article.art_no}]])">
+                            👍 추천 <span th:text="${article.art_like}">0</span>
+                        </button>
+                        <button type="button" class="btn-reaction report" th:onclick="doToggleReport([[${article.art_no}]])">🚨 신고</button>
+                    </div>
+                </div>
+
+                <div class="action-button-group">
+                    <button type="button" class="btn-action-list" onclick="location.href='/foodlist'">목록으로</button>
+                    <th:block th:if="${session.loginUser != null and (session.loginUser.user_no == article.user_no or session.loginUser.user_role == 'MASTER')}">
+                        <button type="button" class="btn-action-del" th:onclick="deleteArticle([[${article.art_no}]])">글 삭제</button>
+                    </th:block>
+                </div>
+
+                <div class="reply-section">
+                    <div class="reply-header">💬 댓글 <span th:text="${#lists.size(replyList)}">0</span></div>
+                    
+                    <div class="reply-input-box">
+                        <textarea id="replyText" class="reply-input" placeholder="이 식당에 대한 후기를 남겨주세요."></textarea>
+                        <button type="button" class="btn-reply" onclick="addReply()">등록</button>
+                    </div>
+
+                    <div id="reply-list">
+                        <div th:each="reply : ${replyList}" class="reply-item">
+                            <div class="reply-meta" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span th:text="${reply.re_date}" style="font-weight: 400; color: #64748b;">날짜</span>
+                                <th:block th:if="${session.loginUser != null and (session.loginUser.user_no == reply.user_no or session.loginUser.user_role == 'MASTER')}">
+                                    <div class="reply-actions">
+                                        <span class="action-link update" th:onclick="showEditForm(this, [[${reply.re_no}]])">수정</span>
+                                        <span class="btn-del-reply" th:onclick="deleteReply([[${reply.re_no}]])">삭제</span>
+                                    </div>
+                                </th:block>
+                            </div>
+                            <div class="reply-content-area">
+                                <div class="reply-content reply-item-content" th:text="${reply.re_content}">댓글 내용</div>
+                            </div>
+                            <div class="reply-item-actions" style="margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d4b30a74e605ae4d61e65b8e77db1bc6&libraries=services"></script>
+    <script th:inline="javascript">
+        const rawContent = /*[[${article.art_content}]]*/ '';
+        const geocoder = new kakao.maps.services.Geocoder();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!rawContent) return;
+            const parts = rawContent.split('SPLIT_HERE');
+            if (parts.length >= 4) {
+                document.getElementById('info-section').innerText = parts[0];
+                document.getElementById('menu-section').innerText = parts[1];
+                document.getElementById('plus-section').innerText = parts[2];
+                document.getElementById('review-section').innerText = parts[3];
+
+                const addrMatch = parts[0].match(/식당\s*주소[:\s]+([^\n\r]+)/);
+                const nameMatch = parts[0].match(/식당명[:\s]+([^\n\r]+)/);
+                
+                if (addrMatch) {
+                    geocoder.addressSearch(addrMatch[1].trim(), (result, status) => {
+                        if (status === kakao.maps.services.Status.OK) {
+                            const mapDiv = document.getElementById('view-map');
+                            mapDiv.style.display = 'block';
+                            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                            const map = new kakao.maps.Map(mapDiv, { center: coords, level: 3 });
+                            const marker = new kakao.maps.Marker({ map: map, position: coords });
+                            new kakao.maps.CustomOverlay({
+                                map: map, position: coords, content: `<div class="custom-overlay">${nameMatch ? nameMatch[1].trim() : "여기예요!"}</div>`, yAnchor: 1 
+                            });
+                            setTimeout(() => map.relayout(), 200);
+                        }
+                    });
+                }
+            }
+        });
+
+        function addReply() {
+            const content = document.getElementById('replyText').value.trim();
+            if (!content) { alert("내용을 입력해주세요."); return; }
+            fetch('/reply/write', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 
+                    art_no: /*[[${article.art_no}]]*/ 0, 
+                    re_content: content })
+            }).then(res => res.text()).then(result => {
+                if (result === "success") location.reload();
+                else alert("로그인이 필요합니다.");
+            });
+        }
+
+        function deleteReply(reNo) {
+            if(!confirm("댓글을 삭제하시겠습니까?")) return;
+            fetch('/reply/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ re_no: reNo })
+            }).then(res => res.text()).then(result => { if(result === "success") location.reload(); });
+        }
+
+        function showEditForm(btn, reNo) {
+            const item = btn.closest('.reply-item');
+            const contentArea = item.querySelector('.reply-content-area');
+            const originalText = contentArea.innerText;
+            contentArea.innerHTML = `<textarea class="edit-textarea" style="width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid #ddd;">${originalText}</textarea>`;
+            item.querySelector('.reply-item-actions').innerHTML = `
+                <span class="action-link save" onclick="saveEdit(this, ${reNo})" style="cursor:pointer; color:blue; margin-right:10px; font-size:14px;">저장</span>
+                <span class="action-link" onclick="location.reload()" style="cursor:pointer; color:gray; font-size:14px;">취소</span>`;
+        }
+
+        function saveEdit(btn, reNo) {
+            const newContent = btn.closest('.reply-item').querySelector('.edit-textarea').value.trim();
+            if(!newContent) return alert("내용을 입력해주세요.");
+            fetch('/reply/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ re_no: reNo, re_content: newContent })
+            }).then(res => res.text()).then(result => { if(result === "success") location.reload(); });
+        }
+
+        function deleteArticle(artNo) {
+            if(!confirm("정말 삭제하시겠습니까?")) return;
+            fetch('/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo })
+            }).then(res => res.text()).then(data => { if(data === "success") location.href = "/foodlist"; });
+        }
+        
+        
+        function doToggleLike(artNo) {
+            if(!confirm("이 게시글을 추천하시겠습니까?")) return;
+
+            fetch('/api/like', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "success") {
+                    alert("추천되었습니다!");
+                    location.reload(); 
+                } else if (result === "login_required") {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                } else {
+                    alert("추천 실패");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            });
+        }
+
+        function doToggleReport(artNo) {
+            const reason = prompt("신고 사유를 입력해주세요.");
+            if (reason === null) return; 
+            if (reason.trim() === "") {
+                alert("신고 사유를 입력해야 합니다.");
+                return;
+            }
+
+            const bNo = /*[[${article.b_no}]]*/ 0; 
+
+            fetch('/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo, b_no: bNo, reason: reason })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "success") {
+                    alert("신고가 접수되었습니다.");
+                } else if (result === "login_required") {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                } else {
+                    alert("신고 실패");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("오류가 발생했습니다.");
+            });
+        }
+    </script>
+</body>
+</html>

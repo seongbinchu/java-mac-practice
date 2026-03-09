@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - 통합 검색</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content">
+			<div class="header-row">
+				<div class="welcome-msg">
+					<span style="font-size: 24px; font-weight: 800; color: #1e293b;">🔍
+						통합 검색 결과</span>
+				</div>
+			</div>
+
+			<div class="board-container">
+				<div
+					style="padding: 20px; border-bottom: 1px solid #e2e8f0; font-size: 16px;">
+					"<span style="color: var(--primary-color); font-weight: 800;"
+						th:text="${keyword}">검색어</span>" 검색 결과 <span
+						style="color: #64748b; font-size: 14px;"> (총 <span
+						th:text="${searchResults != null ? #lists.size(searchResults) : 0}">0</span>건)
+					</span>
+				</div>
+
+				<table class="board-table">
+					<colgroup>
+						<col width="15%">
+						<col width="auto">
+						<col width="15%">
+						<col width="15%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>게시판</th>
+							<th class="title">제목</th>
+							<th class="writer">작성자</th>
+							<th class="date">작성일</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${searchResults}" style="cursor: pointer;"
+							th:onclick="|location.href='@{/view(art_no=${item.art_no})}'|">
+
+							<td style="color: #64748b; font-weight: 600;"
+								th:text="${item.b_name}">게시판명</td>
+
+							<td class="title" style="text-align: left; padding-left: 20px;">
+								<span th:text="${item.art_title}">글 제목</span>
+							</td>
+
+							<td class="writer" th:text="${item.emp_name}">이름</td>
+
+							<td class="date"
+								th:text="${item.art_date != null ? #strings.substring(item.art_date, 0, 10) : ''}">
+								2026-02-12</td>
+						</tr>
+
+						<tr
+							th:if="${searchResults == null or #lists.isEmpty(searchResults)}">
+							<td colspan="4" class="no-data"
+								style="padding: 60px 0; text-align: center; color: #94a3b8;">
+								검색 결과가 없습니다.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div style="margin-top: 20px; text-align: center;">
+				<button type="button" class="btn-outline" onclick="history.back()"
+					style="padding: 10px 30px;">뒤로가기</button>
+			</div>
+
+		</main>
+	</div>
+</body>
+</html>

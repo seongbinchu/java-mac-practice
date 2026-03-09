@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - 받은 쪽지함</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content">
+			<div class="header-row">
+				<div class="welcome-msg">
+
+					<span style="color: var(--primary-color); font-weight: bold;">받은
+						쪽지함</span>
+				</div>
+
+				<button type="button" class="btn-write"
+					onclick="location.href='/writenote'">✏️ 쪽지 보내기</button>
+			</div>
+
+			<div class="board-container">
+				<table class="board-table">
+					<colgroup>
+						<col width="8%">
+						<col width="15%">
+						<col width="auto">
+						<col width="20%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th class="num">번호</th>
+							<th class="writer">보낸 사람</th>
+							<th class="title">제목</th>
+							<th class="date">받은 날짜</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="article, iterStat : ${articles}"
+							th:class="${article.msg_is_read == 0 ? 'note-unread' : 'note-read'}"
+							style="cursor: pointer;"
+							th:onclick="|location.href='@{/note/view(msg_no=${article.msg_no})}'|">
+
+							<td class="num"
+								th:text="${totalCount - ((page - 1) * pageSize) - iterStat.index}">1</td>
+							<td class="writer" style="font-weight: 600;"><span
+								th:text="${article.sender_name}">이름</span> <span
+								th:if="${article.rnk_name != null}"
+								th:text="${article.rnk_name}"
+								style="font-size: 11px; color: #888;">직급</span></td>
+
+							<td class="title" style="text-align: left; padding-left: 20px;">
+								<span th:text="${article.msg_title}">제목</span> <span
+								th:if="${article.msg_is_read == 0}"
+								style="color: red; font-size: 10px; margin-left: 5px;">●</span>
+							</td>
+
+							<td class="date"
+								th:text="${article.msg_datetime != null ? #strings.replace(#strings.substring(article.msg_datetime, 0, 10), 'T', ' ') : ''}">
+								2026-02-11</td>
+						</tr>
+
+						<tr th:if="${#lists.isEmpty(articles)}">
+							<td colspan="4" class="no-data">수신한 쪽지가 없습니다.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="pagination">
+				<a th:if="${page > 1}"
+					th:href="@{/note(searchType=${searchType}, 
+				    	keyword=${keyword}, 
+				    	page=${page - 1}, 
+				    	pageSize=${pageSize}
+				    	)}">
+					&laquo; <!-- 왼쪽 화살표 -->
+				</a> <span
+					th:each="i : ${#numbers.sequence((page - 2) > 1 ? (page - 2) : 1, (page + 2) < totalPage ? (page + 2) : totalPage)}">
+					<a
+					th:href="@{/note(searchType=${searchType},
+                					keyword=${keyword}, 
+                					page=${i},
+                					pageSize=${pageSize}
+                					)}"
+					th:text="${i}" th:classappend="${i == page} ? 'active' : ''"> </a>
+				</span> <a th:if="${page < totalPage}"
+					th:href="@{/note((searchType=${searchType}, 
+				    	keyword=${keyword}, 
+				    	page=${page + 1}, 
+				    	pageSize=${pageSize}
+				    	)}">
+					&raquo; <!-- 오른쪽 화살표 -->
+				</a>
+			</div>
+			<div class="search-section">
+				<form th:action="@{/note}" method="get">
+					<select name="searchType">
+						<option value="msg_title">쪽지 제목</option>
+						<option value="msg_content">쪽지 내용</option>
+						<option value="sender_name">발신자</option>
+					</select> <input type="text" name="keyword" placeholder="검색 내용을 입력해주세요."
+						style="padding: 5px; width: 250px;"> <input type="hidden"
+						name="pageSize" placeholder="10" min="1" th:value="|${pageSize}|"
+						style="padding: 5px; width: 100px;">
+					<button type="submit"
+						style="padding: 5px 15px; background: #7ab730; color: white; border: none; cursor: pointer;">검색</button>
+				</form>
+			</div>
+
+		</main>
+	</div>
+</body>
+</html>

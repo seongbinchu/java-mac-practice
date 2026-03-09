@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - 쪽지 보내기</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+        <main class="content">
+            <div class="header-row">
+                <div class="welcome-msg"><span>✉️ 쪽지 보내기</span></div>
+            </div>
+
+            <div class="write-container">
+                
+                <form th:action="@{/note/send}" method="post">
+                    
+                    <div class="input-group" style="margin-bottom: 25px;">
+                        <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 8px;">받는 사람</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="dept_select" class="custom-select" onchange="loadEmployees(this.value)" 
+                                    style="width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                                <option value="">부서 선택</option>
+                                <th:block th:each="d : ${deptList}">
+                                    <option th:value="${d.dept_no}" th:text="${d.dept_name}">부서명</option>
+                                </th:block>
+                            </select>
+                            
+                            <select name="receiver_name" id="receiver_name" class="custom-select" required 
+                                    style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                                <option value="">사원 선택</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 25px;">
+                        <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 8px;">제목</label>
+                        <input type="text" name="msg_title" class="modern-input" placeholder="제목을 입력하세요" required 
+                               style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+
+                    <div class="write-info-bar" style="margin-bottom: 25px; color: #666; font-size: 14px;">
+                        <span class="info-label" style="font-weight: bold;">발신자 :</span>
+                        <span class="info-value" th:text="${session.loginUser.emp_name} + ' ' + ${session.loginUser.rnk_name}">사용자</span>
+                        <input type="hidden" name="sender_name" th:value="${session.loginUser.user_no}">
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 30px;">
+                        <label class="form-label" style="font-weight: 700; display: block; margin-bottom: 8px;">내용</label>
+                        <textarea name="msg_content" class="content-textarea" 
+                                  placeholder="내용을 입력하세요." required
+                                  style="width: 100%; min-height: 400px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; resize: none;"></textarea>
+                    </div>
+
+                    <div class="write-footer-btns" style="text-align: right;">
+                        <button type="button" class="btn-outline" onclick="history.back()" 
+                                style="padding: 10px 20px; border: 1px solid #ddd; background: #fff; border-radius: 5px; margin-right: 5px;">취소</button>
+                        <button type="submit" class="btn-primary-large" 
+                                style="padding: 10px 20px; border: none; background: var(--primary-color); color: #fff; border-radius: 5px; font-weight: bold;">전송</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function loadEmployees(deptNo) {
+            if (!deptNo) return;
+
+            fetch('/api/users/dept/' + deptNo)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    const userSelect = document.getElementById('receiver_name'); 
+                    userSelect.innerHTML = '<option value="">사원 선택</option>';
+
+                    if (Array.isArray(data)) {
+                        data.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.user_no; 
+                            option.textContent = user.emp_name + " " + (user.rnk_name || ""); 
+                            userSelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("사원 목록을 불러오는 중 오류가 발생했습니다.");
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - My Posts</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+<style>
+/* 레이아웃 기본 설정 */
+.board-container {
+	width: 100%;
+	display: block;
+	clear: both;
+	margin-bottom: 50px;
+}
+
+.section-title {
+	margin: 40px 0 15px 0;
+	padding: 12px 15px;
+	background: #f8f9fa;
+	border-left: 5px solid #7ab730;
+	font-weight: bold;
+	font-size: 1.1em;
+	clear: both;
+}
+
+/* 🌟 핵심: 개별 섹션 스크롤 박스 */
+.scroll-box {
+	width: 100%;
+	max-height: 400px; /* 스크롤이 생기는 최대 높이 (자유롭게 조절 가능) */
+	overflow-y: auto; /* 세로 스크롤 활성화 */
+	border: 1px solid #eee;
+	border-radius: 4px;
+}
+
+/* 테이블 스타일 */
+.board-table {
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+
+/* 🌟 핵심: 스크롤 시 헤더(제목줄) 고정 */
+.board-table thead th {
+	position: sticky;
+	top: 0;
+	background-color: #f2f2f2;
+	padding: 12px 8px;
+	border-bottom: 2px solid #ddd;
+	z-index: 10;
+	font-size: 0.95em;
+}
+
+.board-table tbody td {
+	padding: 12px 8px;
+	border-bottom: 1px solid #eee;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.board-table tbody tr:hover {
+	background-color: #fcfcfc;
+}
+
+/* 스크롤바 커스텀 (선택사항 - 브라우저 스타일링) */
+.scroll-box::-webkit-scrollbar {
+	width: 8px;
+}
+
+.scroll-box::-webkit-scrollbar-thumb {
+	background: #ccc;
+	border-radius: 10px;
+}
+
+.scroll-box::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+</style>
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content">
+			<div class="header-row">
+				<div class="welcome-msg">
+					<span style="color: white; font-weight: bold;">내 활동 내역</span>
+				</div>
+			</div>
+
+			<div class="board-container">
+				<div class="section-title">📂 내가 작성한 게시글</div>
+				<div class="scroll-box">
+					<table class="board-table">
+						<thead>
+							<tr>
+								<th style="width: 10%;">번호</th>
+								<th style="width: 50%;">제목</th>
+								<th style="width: 20%;">작성자</th>
+								<th style="width: 20%;">작성일</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="article, iterStat : ${articles}">
+								<td th:text="${iterStat.count}" style="text-align: center;">1</td>
+								<td th:if="${article.b_no != 8888}"><a th:href="@{/view(art_no=${article.art_no})}"
+									th:text="${article.art_title}"
+									style="text-decoration: none; color: #333;">제목</a></td>
+								<td th:if="${article.b_no == 8888}"><a th:href="@{/foodview(art_no=${article.art_no})}"
+									th:text="${article.art_title}"
+									style="text-decoration: none; color: #333;">제목</a></td>
+								<td style="text-align: center;"><span
+									th:text="${article.emp_name}">이름</span> <span
+									th:text="${article.rnk_name}"
+									style="font-size: 12px; color: #888;">직급</span></td>
+								<td th:text="${article.art_date}" style="text-align: center;"></td>
+							</tr>
+							<tr th:if="${#lists.isEmpty(articles)}">
+								<td colspan="4"
+									style="text-align: center; padding: 50px; color: #999;">작성한
+									게시글이 없습니다.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="board-container">
+				<div class="section-title">💬 내가 댓글을 남긴 게시글</div>
+				<div class="scroll-box">
+					<table class="board-table">
+						<thead>
+							<tr>
+								<th style="width: 10%;">번호</th>
+								<th style="width: 50%;">제목</th>
+								<th style="width: 20%;">원글 작성자</th>
+								<th style="width: 20%;">작성일</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="article, iterStat : ${myRepliedArticles}">
+								<td th:text="${iterStat.count}" style="text-align: center;">1</td>
+								<td th:if="${article.b_no != 8888}"><a th:href="@{/view(art_no=${article.art_no})}"
+									th:text="${article.art_title}"
+									style="text-decoration: none; color: #333;">제목</a> <span
+									style="color: #2ecc71; font-size: 11px; margin-left: 5px; font-weight: bold;">[댓글
+										작성]</span></td>
+								<td th:if="${article.b_no == 8888}"><a th:href="@{/foodview(art_no=${article.art_no})}"
+									th:text="${article.art_title}"
+									style="text-decoration: none; color: #333;">제목</a> <span
+									style="color: #2ecc71; font-size: 11px; margin-left: 5px; font-weight: bold;">[댓글
+										작성]</span></td>
+								<td th:text="${article.emp_name}" style="text-align: center;">이름</td>
+								<td th:text="${article.art_date}" style="text-align: center;"></td>
+							</tr>
+							<tr th:if="${#lists.isEmpty(myRepliedArticles)}">
+								<td colspan="4"
+									style="text-align: center; padding: 50px; color: #999;">댓글을
+									남긴 게시글이 없습니다.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</main>
+	</div>
+</body>
+</html>

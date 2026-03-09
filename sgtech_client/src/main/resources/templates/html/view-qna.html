@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>1:1 문의 상세 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+        <main class="content" style="padding-top: 20px;">
+            <div class="article-container">
+                <div class="article-header">
+                    <div class="board-badge">
+                        <span class="badge-text" th:text="${currentBoard != null ? currentBoard.b_name : '1:1 문의'}">게시판명</span>
+                    </div>
+                    <h1 class="article-title" th:text="${article.art_title}">제목</h1>
+                    <div class="article-info-bar">
+                        <div class="author-group">
+                            <div class="avatar" th:text="${#strings.substring(article.emp_name, 0, 1)}">홍</div>
+                            <div class="text-info">
+                                <span class="author-name" th:text="${article.emp_name}">이름</span>
+                                <span class="author-details" th:text="${article.rnk_name} + ' · ' + ${article.dept_name}">직급 · 부서</span>
+                            </div>
+                        </div>
+                        <div class="meta-group">
+                            <span class="date" th:text="${article.art_date}">날짜</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-divider"></div>
+
+                <div class="article-body" th:utext="${#strings.replace(article.art_content, '\n', '<br>')}">본문 내용</div>
+
+                <div class="right-files" th:if="${article.art_file_name != null}" style="margin: 20px 0; text-align: right;">
+                    <a th:href="@{/file/{no}(no=${article.art_no})}" class="file-link" style="text-decoration: none; color: #666;">
+                        📎 <span th:text="${article.art_file_name}">파일명.png</span>
+                    </a>
+                </div>
+
+                <div class="qna-container">
+				    <div th:if="${session.loginUser.user_role == 'ADMIN' or session.loginUser.user_role == 'MASTER'}" class="kin-write-section">
+				        <div class="kin-write-header">
+				            <div class="kin-admin-profile">
+				                <div class="kin-avatar">A</div>
+				                <div class="kin-admin-text">
+				                    <strong>관리자 답변 작성</strong>
+				                    <p>공식 답변을 남겨주세요.</p>
+				                </div>
+				            </div>
+				            <button type="button" class="btn-kin-submit" onclick="toggleKinEditor()">답변하기</button>
+				        </div>
+				        <div id="kinEditor" style="display:none; margin-top:15px;">
+				            <textarea id="adminReplyText" class="kin-reply-input" style="width:100%; min-height:100px; margin-bottom:10px;" placeholder="답변 내용을 입력하세요."></textarea>
+				            <div style="display:flex; justify-content:flex-end;">
+				                <button type="button" class="btn-kin-submit" onclick="addAdminReply()">등록</button>
+				            </div>
+				        </div>
+				    </div>
+				
+				   <div class="kin-answer-list" th:if="${replyList != null}">
+					    <th:block th:each="reply : ${replyList}">
+					        <div th:if="${reply != null and reply.re_content != null and !reply.re_content.contains('[의견:')}" class="kin-answer-card">
+					            
+					            <div class="kin-answer-header">
+					                <div class="kin-avatar">A</div>
+					                <div class="kin-answer-author">
+					                    <strong th:text="${reply.user_no == 1 ? '관리자' : reply.emp_name}">관리자</strong>
+					                    <span class="date" th:text="${reply.re_date}">날짜</span>
+					                </div>
+					                <div class="kin-admin-btns" th:if="${session.loginUser.user_role == 'ADMIN' or session.loginUser.user_role == 'MASTER'}">
+					                    <a href="javascript:void(0)" th:onclick="editAdminReply([[${reply.re_no}]])">수정</a>
+					                    <a href="javascript:void(0)" th:onclick="deleteSubReply([[${reply.re_no}]])" style="color: #ff4d4d;">삭제</a>
+					                </div>
+					            </div>
+					            
+					            <div class="kin-answer-content">
+					                <p th:id="'reply-content-' + ${reply.re_no}" th:text="${reply.re_content}">공식 답변 내용</p>
+					            </div>
+					
+					            <div class="sub-comment-list">
+								    <th:block th:each="sub : ${replyList}">
+								        <th:block th:if="${sub != null and sub.re_content != null}">
+								            <th:block th:with="targetTag='[의견:' + ${reply.re_no} + ']'">
+								                <div th:if="${sub.re_content.contains(targetTag)}" class="sub-comment-item">
+								                    
+								                    <span class="sub-comment-user" th:text="${sub.user_no == 1 ? '관리자' : sub.emp_name}">이름</span>
+								
+								                    <span class="sub-comment-text" th:id="'reply-content-' + ${sub.re_no}" 
+								                          th:text="${sub.re_content.replace(targetTag + ' ', '')}">내용</span>
+								                    
+								                    <span class="sub-comment-date" th:text="${sub.re_date}">날짜</span>
+								                
+								                    <div class="sub-comment-btns" th:if="${session.loginUser.user_no == sub.user_no or session.loginUser.user_role == 'ADMIN' or session.loginUser.user_role == 'MASTER'}">
+								                        <a href="javascript:void(0)" th:onclick="editSubReply([[${sub.re_no}]], [[${reply.re_no}]])">수정</a>
+								                        <a href="javascript:void(0)" th:onclick="deleteSubReply([[${sub.re_no}]])">삭제</a>
+								                    </div>
+								                </div> 
+								            </th:block>
+								        </th:block>
+								    </th:block>
+								</div>
+					           					
+					            <div class="kin-reply-input-group">
+					                <input type="text" class="kin-reply-input" th:id="'qna-input-'+${reply.re_no}" placeholder="댓글을 남겨보세요.">
+					                <button type="button" class="kin-reply-btn" th:onclick="addReplyFromKin([[${reply.re_no}]])">등록</button>
+					            </div>
+					        </div>
+					    </th:block>
+					</div>
+				</div>
+
+                <div class="article-nav-btns" style="display: flex; justify-content: space-between; margin-top: 30px; padding: 20px 0; border-top: 1px solid #eee;">
+                    <button class="btn-back" th:onclick="|location.href='@{/list(b_no=${article.b_no})}'|">← 목록으로</button>
+
+                    <div class="btn-group-right" th:if="${session.loginUser != null}">
+                        <th:block th:with="isOwner=${session.loginUser.user_no == article.user_no}, 
+                                           isAdmin=${session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN'}">
+                            <button th:if="${isOwner}" class="btn-modify" th:onclick="|location.href='/edit?art_no=${article.art_no}'|">수정</button>
+                            <button th:if="${isOwner or isAdmin}" class="btn-remove" th:onclick="deleteArticle([[${article.art_no}]], [[${article.b_no}]])">삭제</button>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        // 답변 에디터 토글
+        function toggleKinEditor() {
+            const editor = document.getElementById('kinEditor');
+            if(editor) {
+                editor.style.display = (editor.style.display === 'none') ? 'block' : 'none';
+            }
+        }
+
+        // 관리자 공식 답변 등록
+        
+        function addAdminReply() {
+		    const replyInput = document.getElementById('adminReplyText');
+		    const content = replyInput.value.trim();
+		    const artNo = [[${article.art_no}]];
+		
+		    if (!content) return alert("답변 내용을 입력해주세요.");
+		
+		    fetch('/reply/write', {
+		        method: 'POST',
+		        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		        body: new URLSearchParams({ 
+		            art_no: artNo, 
+		            re_content: content,
+		            art_tag: '답변완료' // 이 값이 컨트롤러로 전달되어 상태를 바꿈
+		        })
+		    })
+		    .then(res => res.text())
+		    .then(result => {
+		        if (result === "success") location.reload();
+		        else alert("등록 실패");
+		    });
+		}
+		
+        // 답변에 대한 의견(댓글) 등록
+        function addReplyFromKin(reNo) {
+		    const input = document.getElementById('qna-input-' + reNo);
+		    const content = input.value.trim();
+		    const artNo = [[${article.art_no}]];
+		
+		    if (!content) return alert("내용을 입력해주세요.");
+		    const combinedContent = "[의견:" + reNo + "] " + content;
+		
+		    fetch('/reply/write', {
+		        method: 'POST',
+		        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		        body: new URLSearchParams({ art_no: artNo, re_content: combinedContent })
+		    })
+		    .then(res => res.text())
+		    .then(result => {
+		        if (result === "success") location.reload();
+		    });
+		}
+
+        // [추가] 관리자 공식 답변 수정
+        function editAdminReply(reNo) {
+            const oldContent = document.getElementById('reply-content-' + reNo).innerText;
+            const newContent = prompt("공식 답변을 수정하시겠습니까?", oldContent);
+            if (newContent && newContent !== oldContent) {
+                updateReply(reNo, newContent);
+            }
+        }
+
+        // [추가] 일반 댓글 수정 (태그 유지)
+        function editSubReply(reNo, parentNo) {
+            const oldContent = document.getElementById('reply-content-' + reNo).innerText;
+            const newText = prompt("댓글을 수정하시겠습니까?", oldContent);
+            if (newText && newText !== oldContent) {
+                const combinedContent = "[의견:" + parentNo + "] " + newText;
+                updateReply(reNo, combinedContent);
+            }
+        }
+
+        // [추가] 공통 수정 fetch
+        function updateReply(reNo, content) {
+            fetch('/reply/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ re_no: reNo, re_content: content })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "success") location.reload();
+                else alert("수정 실패");
+            });
+        }
+
+        // 게시글 삭제
+        function deleteArticle(artNo, bNo) {
+            if(!confirm("게시글을 삭제하시겠습니까?")) return;
+            fetch('/delete', {  
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ art_no: artNo })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if(result === "success") location.href = '/list?b_no=' + bNo;
+                else alert("삭제 실패");
+            });
+        }
+        
+        // 답변 및 댓글 삭제 (공통)
+        function deleteSubReply(reNo) {
+            if(!confirm("정말 삭제하시겠습니까?")) return;
+            fetch('/reply/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ re_no: reNo })
+            })
+            .then(res => res.text())
+            .then(result => {
+                if(result === "success") location.reload();
+                else alert("삭제 실패");
+            });
+        }
+    </script>
+</body>
+</html>

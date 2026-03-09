@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>글 작성</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content">
+
+			<div class="page-breadcrumb">
+				<span
+					th:text="${currentBoard != null ? currentBoard.b_name +' 게시판': '게시판'}">게시판</span>
+				<span class="divider">|</span> <span class="current">글쓰기</span>
+			</div>
+
+			<div class="write-container">
+				<form th:action="@{/write}" method="post"
+					enctype="multipart/form-data">
+					<input type="hidden" name="b_no" th:value="${selectedBno}">
+
+					<div class="write-header-group">
+
+						<div class="write-options-row">
+							<select id="art_tag" name="art_tag" class="custom-select"
+								style="display: none;" required>
+								<option value="일반" th:if="${currentBoard.b_no != 9999}" selected>일반</option>
+								<option value="공지" th:if="${currentBoard.b_no == 9999}" selected>공지</option>
+							</select> <span th:if="${selectedBno == 7777 or b_no == 7777}"
+								style="color: #2563eb; font-size: 0.9rem; font-weight: bold; margin-left: 10px;">
+								🔒 관리자 1:1 비밀 문의로 등록됩니다. <input type="hidden"
+								name="art_is_private" value="Y">
+							</span> <input th:unless="${selectedBno == 7777 or b_no == 7777}"
+								type="hidden" name="art_is_private" value="N"> <input
+								type="hidden" name="art_is_private" value="N"
+								th:if="${(b_no != null and b_no != 7777) and (selectedBno != null and selectedBno != 7777)}">
+						</div>
+
+						<input type="text" name="art_title" class="title-input-large"
+							placeholder="제목을 입력하세요" required>
+					</div>
+
+					<div class="write-divider"></div>
+
+					<div class="write-info-bar">
+						<span class="info-label">작성자</span> <span class="info-value"
+							th:text="${session.loginUser.emp_name} + ' ' + ${session.loginUser.rnk_name}">이름
+							직급</span> <span class="divider">|</span> <span class="info-value"
+							th:text="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd HH:mm')}">날짜</span>
+					</div>
+
+					<textarea id="content" name="art_content" class="content-textarea"
+						placeholder="내용을 자유롭게 입력하세요.&#10;파일 첨부는 하단 버튼을 이용해주세요." required></textarea>
+
+					<div class="file-upload-section">
+						<div class="file-header">
+							<label for="attachments" class="btn-file-select"> 📎 파일
+								선택 </label> <input type="file" name="uploadFile" id="attachments"
+								multiple style="display: none;"> <span
+								class="file-guide">최대 800KB까지 업로드 가능</span>
+						</div>
+						<ul id="file-list" class="file-preview-list">
+						</ul>
+					</div>
+
+					<div class="write-divider"></div>
+
+					<div class="write-footer-btns">
+						<button type="button" class="btn-outline" onclick="history.back()">취소</button>
+						<button type="submit" class="btn-primary-large">등록 완료</button>
+					</div>
+				</form>
+			</div>
+		</main>
+	</div>
+
+	<script>
+        let fileStorage = new DataTransfer();
+        const fileInput = document.getElementById('attachments');
+        const fileList = document.getElementById('file-list');
+
+        fileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => { fileStorage.items.add(file); });
+            fileInput.files = fileStorage.files;
+            renderFileList();
+        });
+
+        function renderFileList() {
+            fileList.innerHTML = '';
+            const files = fileStorage.files;
+
+            if (files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const li = document.createElement('li');
+                li.className = 'file-preview-item';
+                li.innerHTML = `
+                    <span class="fname">${files[i].name}</span>
+                    <span class="fsize">(${(files[i].size / 1024).toFixed(1)} KB)</span>
+                    <span class="fremove" onclick="removeFile(${i})">×</span>
+                `;
+                fileList.appendChild(li);
+            }
+        }
+
+        function removeFile(index) {
+            const newStorage = new DataTransfer();
+            const files = fileStorage.files;
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) newStorage.items.add(files[i]);
+            }
+            fileStorage = newStorage;
+            fileInput.files = fileStorage.files;
+            renderFileList();
+        }
+    </script>
+</body>
+</html>

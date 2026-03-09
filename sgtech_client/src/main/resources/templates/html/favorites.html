@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>게시판 목록</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content">
+
+			<div class="header-row">
+				<div class="page-title-area">
+					<span class="board-title"
+						th:text="${currentBoard != null ? currentBoard.b_name + ' 게시판' : '게시판 목록'}">
+						즐겨찾기 게시판 </span>
+				</div>
+
+				
+			</div>
+
+			<table class="board-table">
+				<colgroup>
+					<col width="5%" class="col-fav">
+					<col width="5%" class="col-num">
+					<col width="60%" class="col-title">
+					<col width="10%" class="col-writer">
+					<col width="5%" class="col-count">
+					<col width="5%" class="col-like">
+					<col width="10%" class="col-date">
+				</colgroup>
+				<thead>
+					<tr>
+						<th class="like">⭐</th>
+						<th class="num">번호</th>
+						<th class="title">제목</th>
+						<th class="writer">작성자</th>
+						<th class="count">조회</th>
+						<th class="like">추천</th>
+						<th class="date">날짜</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="article : ${articles}">
+						<th:block
+							th:if="${currentBoard.b_no != 7777 or (session.loginUser.user_role == 'ADMIN' or session.loginUser.user_role == 'MASTER' or session.loginUser.user_no == article.user_no)}">
+
+							<td style="text-align: center;">
+								<button type="button" class="star-btn"
+									th:onclick="doToggleFav(this, [[${article.art_no}]])">
+									<span class="star-icon"
+										th:text="${article.isFav == 'Y' ? '★' : '☆'}"
+										th:style="${article.isFav == 'Y' ? 'color: #FFD700;' : 'color: #cbd5e1;'}">
+										☆ </span>
+								</button>
+							</td>
+
+							<td class="no" th:text="${article.art_no}">1</td>
+
+							<td class="title"><span th:if="${currentBoard.b_no == 7777}">🔒</span>
+								<a th:href="@{/view(art_no=${article.art_no})}"
+								th:text="${article.art_title}">제목</a></td>
+
+							<td class="writer"><span
+								th:if="${currentBoard.b_no == 6666}" class="anon">익명</span> <th:block
+									th:unless="${currentBoard.b_no == 6666}">
+									<span th:text="${article.emp_name}">이름</span>
+									<span class="writer-rank" th:text="${article.rnk_name}">직급</span>
+								</th:block></td>
+
+							<td class="count" th:text="${article.art_count}">0</td>
+							<td class="like" th:text="${article.art_like}">0</td>
+							<td class="date" th:text="${article.art_date}">날짜</td>
+						</th:block>
+					</tr>
+
+					<tr th:if="${#lists.isEmpty(articles)}">
+						<td colspan="7" class="no-data">등록된 게시글이 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+
+			</main>
+			</div>
+			<script>
+    function doToggleFav(btn, artNo) {
+        fetch('/api/fav-toggle?artNo=' + artNo, { method: 'POST' })
+        .then(res => res.json())
+        .then(isAdded => {
+            const starSpan = btn.querySelector('.star-icon');
+            if (isAdded) {
+                starSpan.innerText = '★';
+                starSpan.style.color = '#FFD700';
+                if (confirm("즐겨찾기에 등록되었습니다! 목록으로 이동하시겠습니까?")) {
+                    location.href = '/favorites';
+                }
+            } else {
+                starSpan.innerText = '☆';
+                starSpan.style.color = '#cbd5e1';
+                alert("즐겨찾기가 해제되었습니다.");
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("오류가 발생했습니다.");
+        });
+    }
+    </script>
+</body>
+</html>

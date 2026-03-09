@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>관리자 게시판 관리페이지</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+<style>
+/* 관리자 뱃지 및 삭제 버튼 스타일 */
+.badge-admin {
+	display: inline-flex;
+	align-items: center;
+	background: #eef2ff;
+	color: #4f46e5;
+	padding: 2px 8px;
+	border-radius: 4px;
+	font-size: 0.9em;
+}
+
+.btn-revoke {
+	margin-left: 6px;
+	background: none;
+	border: none;
+	color: #ff4d4f;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 16px;
+	padding: 0 2px;
+	line-height: 1;
+	transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.btn-revoke:hover {
+	color: #cf1322;
+	transform: scale(1.2);
+}
+
+.admin-info-tag {
+	display: inline-block;
+	vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div
+		th:if="${session.loginUser != null and (session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN')}"
+		th:replace="~{layout/master-layout :: masterTabs('boards')}"></div>
+
+	<div class="container">
+		<main class="content">
+			<div class="header-row">
+				<div class="welcome-msg">
+					<th:block th:if="${currentBoard != null}">
+						<span th:text=" 게시판관리 " style="color: white; font-weight: bold;">게시판</span>
+					</th:block>
+				</div>
+				<button class="btn-boardAdd" th:onclick="boardAdd()">게시판 추가</button>
+			</div>
+
+			<div id="search-result" th:if="${keyword != '' and keyword != null}">
+				<span th:text="${keyword}"></span>(으)로 검색한 결과 : 총 <span
+					th:text="${totalCount}"></span>개 반환되었습니다.
+			</div>
+
+			<table class="board-table">
+				<thead>
+					<tr>
+						<th class="num">번호</th>
+						<th class="title">제목</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="board, st : ${boards}"
+						th:if="${
+                        (session.loginUser.user_role == 'MASTER' 
+            and (board['b_no'] < 1001 or board['b_no'] > 1010) 
+            and board['b_no'] != 9999 
+            and board['b_no'] != 8888 
+            and board['b_no'] != 7777 
+            and board['b_no'] != 6666)}">
+
+						<td class="num board-index"
+							th:text="${(page - 1) * pageSize + st.count}"></td>
+						<td class="title">
+							<div th:id="|view_area_${board['b_no']}|" class="board-view-mode"
+								style="display: flex; align-items: center; justify-content: space-between;">
+								<div>
+									<a th:href="@{/list(b_no=${board['b_no']})}"
+										th:text="${board['b_name']}" style="font-weight: bold;">게시판이름</a>
+
+									<span class="admin-info-tag" style="margin-left: 10px;">
+										<th:block
+											th:if="${board['b_master'] != null and board['b_master'] != ''}">
+											<span class="badge-admin"> <span
+												th:text="|담당: ${board['b_master']}|">관리자이름</span>
+												<button type="button" class="btn-revoke"
+													th:if="${board['emp_no'] != null}"
+													th:onclick="revokeAdmin([[${board['b_no']}]], [[${board['emp_no']}]])"
+													title="관리자 해제">&times;</button>
+											</span>
+										</th:block> <th:block
+											th:unless="${board['b_master'] != null and board['b_master'] != ''}">
+											<span class="badge-none" style="color: #999;">(관리자 없음)</span>
+										</th:block>
+									</span>
+								</div>
+
+								<div class="board-actions">
+									<button class="btn-adminSelect"
+										th:onclick="|adminSelect(${board['b_no']})|">관리자 지정</button>
+									<button class="btn-edit"
+										th:onclick="|showEditBox(${board['b_no']})|">수정</button>
+									<button class="btn-delete"
+										th:onclick="|boardRemove(${board['b_no']})|">삭제</button>
+								</div>
+							</div>
+
+							<div th:id="|edit_area_${board['b_no']}|" class="board-edit-mode"
+								style="display: none;">
+								<input type="text" th:id="|input_${board['b_no']}|"
+									th:value="${board['b_name']}" class="input-edit-board">
+								<button class="btn-save"
+									th:onclick="|submitEdit(${board['b_no']})|">저장</button>
+								<button class="btn-cancle"
+									th:onclick="|cancleEdit(${board['b_no']})|">취소</button>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div th:if="${keyword != null && keyword != ''}">
+				<strong>"<span th:text="${keyword}"></span>"
+				</strong>(으)로 검색 결과 총 <span th:text="${totalCount}"></span>개 검색 되었습니다.
+			</div>
+			<div class="pagination">
+				<a th:if="${page > 1}"
+					th:href="@{/master/boards(searchType=${searchType}, 
+				    	keyword=${keyword}, 
+				    	page=${page - 1}, 
+				    	pageSize=${pageSize})}">
+					&laquo; <!-- 왼쪽 화살표 -->
+				</a> <span
+					th:each="i : ${#numbers.sequence((page - 2) > 1 ? (page - 2) : 1, (page + 2) < totalPage ? (page + 2) : totalPage)}">
+					<a
+					th:href="@{/master/boards(searchType=${searchType},
+                					keyword=${keyword}, 
+                					page=${i},
+                					pageSize=${pageSize}
+                					)}"
+					th:text="${i}" th:classappend="${i == page} ? 'active' : ''"> </a>
+				</span> <a th:if="${page < totalPage}"
+					th:href="@{/master/boards(searchType=${searchType}, 
+				    	keyword=${keyword}, 
+				    	page=${page + 1}, 
+				    	pageSize=${pageSize})
+				    	}">
+					&raquo; <!-- 오른쪽 화살표 -->
+				</a>
+			</div>
+			<div class="search-section">
+				<form th:action="@{/master/boards}" method="get">
+					<input type="hidden" name="b_no" th:value="${currentBoard.b_no}">
+					<select name="searchType">
+						<option value="b_name">게시판 이름</option>
+					</select> <input type="text" name="keyword" placeholder="검색 내용을 입력해주세요."
+						style="padding: 5px; width: 250px;"> <input type="hidden"
+						name="pageSize" placeholder="10" min="1" th:value="|${pageSize}|"
+						style="padding: 5px; width: 100px;">
+					<button type="submit"
+						style="padding: 5px 15px; background: #7ab730; color: white; border: none; cursor: pointer;">검색</button>
+				</form>
+			</div>
+
+			<div id="boardAddPopup" class="modal-overlay" style="display: none;">
+				<div class="modal-content">
+					<h3>게시판 추가</h3>
+					<div class="modal-body">
+						<label>카테고리</label> <select id="newBoardCate"
+							style="width: 100%; margin-bottom: 10px; padding: 5px;">
+							<option value="프로젝트">프로젝트</option>
+							<option value="부서별">부서별</option>
+						</select> <label>게시판 이름</label> <input type="text" id="newBoardName"
+							placeholder="새 게시판 이름 입력">
+					</div>
+					<div class="modal-footer">
+						<button class="btn-save" onclick="submitBoardAdd()">추가</button>
+						<button class="btn-cancle" onclick="closeBoardAdd()">취소</button>
+					</div>
+				</div>
+			</div>
+
+			<div id="adminSelectPopup" class="modal-overlay"
+				style="display: none;">
+				<div class="modern-modal">
+					<div class="modern-modal-header">
+						<h3>👑 관리자 지정</h3>
+						<button class="btn-close-icon" onclick="closeAdminSelect()">&times;</button>
+					</div>
+
+					<div class="modern-modal-body">
+						<input type="hidden" id="target_b_no">
+
+						<div class="form-group">
+							<label for="dept_select">부서 선택</label> <select id="dept_select"
+								class="modern-select" onchange="loadUsers(this.value)">
+								<option value="">부서를 선택해주세요</option>
+								<th:block th:each="d : ${deptList}">
+									<option th:value="${d.dept_no}" th:text="${d.dept_name}"></option>
+								</th:block>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="user_no">사용자 선택</label> <select id="user_no"
+								class="modern-select" required>
+								<option value="">부서를 먼저 선택하세요</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="modern-modal-footer">
+						<button class="btn-cancle-modern" type="button"
+							onclick="closeAdminSelect()">취소</button>
+						<button class="btn-save-modern" type="button"
+							onclick="submitAdminSelect()">지정 완료</button>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<script>
+// 1. 부서별 사용자 목록 불러오기
+function loadUsers(deptNo) {
+    const userSelect = document.getElementById('user_no'); 
+    userSelect.innerHTML = '<option value="">사용자 선택</option>';
+    
+    if (!deptNo) return;
+
+    fetch(`/api/users/dept/${deptNo}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                 userSelect.innerHTML = '<option value="">해당 부서 사용자 없음</option>';
+            } else {
+                data.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.user_no; 
+                    option.textContent = `${user.emp_name} (${user.rnk_name})`;
+                    userSelect.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// 2. 관리자 지정 제출
+function submitAdminSelect() {
+    const bNo = document.getElementById('target_b_no').value;
+    const userNo = document.getElementById('user_no').value;
+
+    if (!bNo) { alert("게시판 정보가 없습니다."); return; }
+    if (!userNo) { alert("관리자로 지정할 사용자를 선택해주세요."); return; }
+
+    fetch('/master/boards/grant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ 
+            b_no: bNo, 
+            user_no: userNo 
+        })
+    })
+    .then(res => res.text())
+    .then(result => {
+        if (result === "success") {
+            alert("관리자가 지정되었습니다.");
+            location.reload();
+        } else {
+            alert("관리자 지정 실패");
+        }
+    })
+    .catch(error => alert("서버 통신 중 오류 발생"));
+}
+
+// 3. 관리자 해제 (삭제 버튼 클릭 시)
+function revokeAdmin(boardNo, empNo) {
+    if (!confirm("해당 게시판의 관리자 지정을 해제하시겠습니까?")) return;
+
+    // URLSearchParams에 b_no와 emp_no를 모두 담습니다.
+    const params = new URLSearchParams();
+    params.append('b_no', boardNo);
+    params.append('emp_no', empNo);
+
+    fetch('/master/boards/revoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    })
+    .then(res => res.text())
+    .then(result => {
+        console.log("서버 응답:", result);
+        if (result.trim() === "success") {
+            alert("관리자 권한이 해제되었습니다.");
+            location.reload();
+        } else {
+            alert("해제 실패: " + result);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("통신 중 오류가 발생했습니다.");
+    });
+}
+
+// 4. 수정 모드 전환
+function showEditBox(boardNo) {
+    var safeNo = String(boardNo).replace(/,/g, ''); 
+    var viewEl = document.getElementById('view_area_' + safeNo);
+    var editEl = document.getElementById('edit_area_' + safeNo);
+    
+    if (viewEl && editEl) {
+        viewEl.style.setProperty('display', 'none', 'important');
+        editEl.style.setProperty('display', 'flex', 'important');
+        document.getElementById('input_' + safeNo).focus();
+    }
+}
+
+// 5. 게시판 이름 수정 제출
+function submitEdit(boardNo) {
+    const newName = document.getElementById('input_' + boardNo).value;
+    if(!newName) { alert("이름을 입력하세요."); return; }
+
+    fetch('/master/boards/updateName', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ b_no: boardNo, b_name: newName })
+    })
+    .then(res => res.text())
+    .then(result => {
+        if(result === "success") location.reload();
+        else alert("수정 실패");
+    });
+}
+
+function cancleEdit(boardNo) {
+    document.getElementById('view_area_' + boardNo).style.setProperty('display', 'flex', 'important');
+    document.getElementById('edit_area_' + boardNo).style.setProperty('display', 'none', 'important');
+}
+
+function boardAdd() { document.getElementById('boardAddPopup').style.display = 'flex'; }
+function closeBoardAdd() { document.getElementById('boardAddPopup').style.display = 'none'; }
+function closeAdminSelect() { document.getElementById('adminSelectPopup').style.display = 'none'; }
+function adminSelect(boardNo) {
+    document.getElementById('adminSelectPopup').style.display = 'flex';
+    document.getElementById('target_b_no').value = boardNo;
+}
+
+// 게시판 추가 제출
+function submitBoardAdd() {
+    const name = document.getElementById('newBoardName').value;
+    const cate = document.getElementById('newBoardCate').value;
+    if(!name) return alert("게시판 이름을 입력하세요.");
+
+    fetch('/master/boards/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ b_name: name, b_cate: cate })
+    })
+    .then(res => res.text()) // 서버에서 보내는 "success" 문자열을 받음
+    .then(result => {
+        if(result.trim() === "success") {
+            alert("게시판이 추가되었습니다.");
+            location.reload(); // 현재 페이지 새로고침하여 목록 갱신
+        } else {
+            alert("추가 실패: " + result);
+        }
+    })
+    .catch(err => alert("통신 중 오류 발생"));
+}
+
+// 게시판 삭제
+function boardRemove(boardNo) {
+    if(!confirm("게시판을 삭제하시겠습니까?")) return;
+    fetch('/master/boards/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ b_no: boardNo })
+    })
+    .then(res => res.text())
+    .then(result => {
+        if(result === "success") location.reload();
+        else alert("삭제 실패");
+    });
+}
+    </script>
+</body>
+</html>

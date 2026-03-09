@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Smart Greentech - 쪽지 읽기</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+
+	<div class="container">
+		<nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+		<main class="content">
+			<div class="header-row">
+				<div class="welcome-msg">
+					<span>📄 쪽지 내용</span>
+				</div>
+			</div>
+
+			<div class="article-container">
+
+				<div class="article-header">
+					<h1 class="article-title" th:text="${msg.msg_title}">제목</h1>
+
+					<div class="article-info-bar"
+						style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+						<div class="author-group" style="display: flex; gap: 20px;">
+							<div>
+								<span style="font-weight: bold; color: #555;">보낸 사람 :</span> <span
+									th:text="${msg.sender_name}" style="color: #000;">홍길동</span>
+							</div>
+							<div style="color: #ddd;">|</div>
+							<div>
+								<span style="font-weight: bold; color: #555;">받는 사람 :</span> <span
+									th:text="${msg.receiver_name}" style="color: #000;">김철수</span>
+							</div>
+						</div>
+						<div class="meta-group">
+							<span class="date"
+								th:text="${#dates.format(msg.msg_datetime, 'yyyy-MM-dd')}"
+								style="color: #888;">2026-02-11</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="article-body" th:text="${msg.msg_content}"
+					style="min-height: 300px; padding: 20px 0; font-size: 15px; line-height: 1.6;">
+					내용</div>
+
+				<div class="article-divider"></div>
+
+				<div class="article-nav-btns">
+					<button class="btn-back" onclick="location.href='/note'">목록</button>
+
+					<a
+						th:href="@{/replyNote(receiver_id=${msg.from_id}, name=${msg.sender_name})}"
+						class="btn-write" style="text-decoration: none;">↩ 답장하기</a>
+				</div>
+			</div>
+		</main>
+	</div>
+</body>
+</html>

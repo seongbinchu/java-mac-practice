@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+</head>
+<body>
+	<header th:fragment="myHeader" class="main-header">
+		<input type="hidden" id="loggedInUserNo" th:value="${session.loginUser != null ? session.loginUser.user_no : ''}">
+		<input type="hidden" id="loggedInEmpNo" th:value="${session.loginUser != null ? session.loginUser.emp_no : ''}">
+
+		<div class="header-left">
+			<div class="logo" onclick="location.href='/mainpage'">
+				<span class="sg">SG</span> (주)스마트 그린텍
+			</div>
+		</div>
+
+		<div class="header-center">
+			<div class="header-search">
+				<form th:action="@{/search}" method="get">
+					<input type="text" name="keyword" placeholder="통합 검색...">
+					<span></span>
+				</form>
+			</div>
+		</div>
+
+		<div class="header-right">
+			<div class="header-icons">
+				<button type="button" class="icon-btn" onclick="togglePopup()">
+					<img th:src="@{/images/menu.PNG}" alt="메뉴">
+				</button>
+				<button type="button" class="icon-btn note-icon-wrapper" onclick="location.href='/note'">
+					<img th:src="@{/images/note.PNG}" alt="쪽지">
+					<span class="note-badge-count" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">N</span>
+				</button>
+				<button type="button" class="icon-btn" onclick="confirmLogout()">
+					<img th:src="@{/images/logout.PNG}" alt="로그아웃">
+				</button>
+			</div>
+		</div>
+
+		<div id="menuPopup" class="menu-dropdown-card" style="display: none;">
+            </div>
+	</header>
+
+	<div th:fragment="masterTabs(activeTab)">
+		<nav class="master-gnb">
+		<ul>
+		    <!-- 1. 모든 관리자 공통: 메인 화면 -->
+		    <li><a href="/mainpage">메인 화면</a></li>
+		    
+		    <!-- 2. MASTER 전용 메뉴들 -->
+		    <li th:if="${session.loginUser.user_role == 'MASTER'}">
+		        <a th:href="@{/master/boards}" th:classappend="${activeTab == 'boards'} ? 'active'">게시판 관리</a>
+		    </li>
+		    <li th:if="${session.loginUser.user_role == 'MASTER'}">
+		        <a th:href="@{/master/users}" th:classappend="${activeTab == 'users'} ? 'active'">회원 관리</a>
+		    </li>
+		    
+		    <!-- 3. MASTER + ADMIN 공통: 글쓰기 권한 관리 -->
+		    <li th:if="${session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN'}">
+		        <a th:href="@{/master/admins}" th:classappend="${activeTab == 'admins'} ? 'active'">글쓰기 권한 관리</a>
+		    </li>
+		    
+		    <!-- 4. MASTER 전용 메뉴들 -->
+		    <li th:if="${session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN' }">
+		        <a th:href="@{/master/reports}" th:classappend="${activeTab == 'reports'} ? 'active'">신고 관리</a>
+		    </li>
+		    <li th:if="${session.loginUser.user_role == 'MASTER'}" class="has-sub" id="deletedMenu">
+		        <button type="button" class="tab-btn" onclick="toggleDeletedSubmenu(event)">삭제 관리</button>
+		        <ul class="sub-menu" id="deletedSubmenu">
+		            <li><a th:href="@{/master/deletedArticle}">게시글 삭제관리</a>
+		            <a th:href="@{/master/deletedReply}">댓글 삭제관리</a></li>
+		        </ul>
+		    </li>
+		     <li th:if="${session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN'}">
+		        <a th:href="@{/list?b_no=7777}" th:classappend="${activeTab == 'users'} ? 'active'">문의 관리</a>
+		    </li>
+		    
+		</ul>
+		</nav>
+		</div>
+
+</body>
+</html>
+
+	<script th:fragment="commonScripts">
+        function togglePopup() {
+            const popup = document.getElementById('menuPopup');
+            popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+        }
+
+        window.addEventListener('click', function(e) {
+            const popup = document.getElementById('menuPopup');
+               if (popup && popup.style.display === 'flex' && !popup.contains(e.target) && !e.target.closest('.icon-btn')) { 
+                popup.style.display = 'none'; 
+            }
+        });
+
+        function logout() {
+            if(confirm("로그아웃 하시겠습니까?")) location.href = "/logout";
+        }
+
+        function openMemberInfo(user) {
+            document.getElementById('info_nameTitle').innerText = user.emp_name + "님 상세 정보";
+            document.getElementById('info_name').innerText = user.emp_name;
+            document.getElementById('info_rank').innerText = user.rnk_name;
+            document.getElementById('info_dept').innerText = user.dept_name;
+            document.getElementById('info_tel').innerText = user.emp_tel || '-';
+            document.getElementById('info_email').innerText = user.emp_email || '-';
+            document.getElementById('info_emailP').innerText = user.user_email || '-';
+            document.getElementById('info_note').innerText = user.user_note || '상태 메시지가 없습니다.';
+
+            const stateDot = document.getElementById('info_stateDot');
+            const stateText = document.getElementById('info_stateText');
+            stateDot.className = 'status-dot';
+            
+            if (user.user_state === 'ONLINE') {
+                stateDot.classList.add('blue-dot'); stateText.innerText = "온라인";
+            } else if (user.user_state === 'AWAY') {
+                stateDot.classList.add('yellow-dot'); stateText.innerText = "자리비움";
+            } else {
+                stateDot.classList.add('gray-dot'); stateText.innerText = "오프라인";
+            }
+
+            const myUserNo = document.getElementById('loggedInUserNo').value;
+            const editBtn = document.getElementById('btnEditProfile');
+            
+            if (myUserNo && String(myUserNo) === String(user.user_no)) {
+                editBtn.style.display = 'inline-block';
+            } else {
+                editBtn.style.display = 'none';
+            }
+
+            document.getElementById('memberPopup').style.display = 'flex';
+        }
+
+        function closeInfoPopup() { document.getElementById('memberPopup').style.display = 'none'; }
+        
+        function openEditPopup() {
+            closeInfoPopup();
+            document.getElementById('editPopup').style.display = 'flex';
+            document.getElementById('edit_note').value = document.getElementById('info_note').innerText;
+            document.getElementById('edit_emailP').value = document.getElementById('info_emailP').innerText;
+            document.getElementById('edit_tel').value = document.getElementById('info_tel').innerText;
+        }
+
+        function closeEditPopup() { document.getElementById('editPopup').style.display = 'none'; }
+
+        function submitEditForm() {
+            const form = document.getElementById('editForm');
+            const formData = new FormData(form);
+            fetch('/user/updateMyInfo', { method: 'POST', body: formData })
+                .then(res => res.text()).then(data => {
+                    if (data === 'success') { alert('수정되었습니다.'); location.reload(); }
+                    else { alert('수정 실패'); }
+                });
+        }
+
+        function toggleDeletedSubmenu(e) {
+            e.preventDefault();
+            document.getElementById('deletedMenu').classList.toggle('open');
+        }
+    </script>
+
+</body>
+</html>

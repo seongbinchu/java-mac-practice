@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>로그인 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body class="auth-body">
+	<div class="auth-container">
+		<div class="auth-card">
+
+			<div class="auth-header">
+				<div class="logo-box">
+					<img th:src="@{/images/logo.png}" alt="SG Logo" class="auth-logo">
+				</div>
+				<h1 class="brand-title">SMART GREENTECH</h1>
+				<p class="brand-subtitle">인트라넷 시스템</p>
+			</div>
+
+			<form th:action="@{/login}" method="post" class="auth-form" onsubmit="return validateLoginForm()">
+				<div class="input-group">
+					<label for="emp_no">사번</label> <input type="text" id="emp_no"
+						name="emp_no" class="auth-input" placeholder="사번을 입력하세요" required>
+				</div>
+
+				<div class="input-group">
+					<label for="user_pw">비밀번호</label> <input type="password"
+						id="user_pw" name="user_pw" class="auth-input"
+						placeholder="비밀번호를 입력하세요" required>
+				</div>
+
+				<div class="auth-actions">
+					<button type="submit" class="btn-full-primary">로그인</button>
+					<button type="button" class="btn-full-outline"
+						onclick="location.href='/join'">회원가입</button>
+					<div style="text-align: center; margin: 10px 0;">
+						<a href="/pw-reset"
+							style="color: #666; font-size: 0.9rem; text-decoration: none;">비밀번호를
+							잊으셨나요?</a>
+					</div>
+				</div>
+			</form>
+
+			<div class="auth-footer">since 2026.01.23 Smart Greentech Corp.
+			</div>
+		</div>
+	</div>
+
+</body>
+<script th:inline="javascript">
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+
+        if (status === 'pending') {
+            alert("승인 처리 전입니다. 관리자에게 문의하세요.");
+        } else if (status === 'fail') {
+            alert("아이디 또는 비밀번호가 틀렸습니다.");
+        }
+        if (status) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    };
+
+    function validateLoginForm() {
+        const empNo = document.getElementById('emp_no').value;
+        const numRegex = /^[0-9]+$/;
+        if (!numRegex.test(empNo)) {
+            alert("사번은 숫자만 입력 됩니다.");
+            document.getElementById('emp_no').value = ''; 
+            document.getElementById('emp_no').focus();    
+            return false; 
+        }
+        
+        return true; 
+    }
+</script>
+</html>

@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+</head>
+<body>
+
+	<header th:fragment="myHeader" class="main-header">
+		<input type="hidden" id="loggedInUserNo"
+			th:value="${session.loginUser != null ? session.loginUser.user_no : ''}">
+		<input type="hidden" id="loggedInEmpNo"
+			th:value="${session.loginUser != null ? session.loginUser.emp_no : ''}">
+
+		<div class="header-left">
+			<div class="logo" onclick="location.href='/mainpage'">
+				<span class="sg">SG</span> (주)스마트 그린텍
+			</div>
+		</div>
+
+		<div class="header-center">
+			<div class="header-search">
+				<form th:action="@{/search}" method="get">
+					<input type="text" name="keyword" placeholder="통합 검색..."> <span></span>
+				</form>
+			</div>
+		</div>
+
+
+
+		<div class="header-right">
+			<div class="login-user-info" th:if="${session.loginUser != null}">
+				<div class="info-item">
+					<span class="label">부서:</span> <span class="value"
+						th:text="${session.loginUser.dept_name}">개발</span>
+				</div>
+				<span class="user-divider">|</span>
+				<div class="info-item">
+					<span class="label">직책:</span> <span class="value"
+						th:text="${session.loginUser.rnk_name}">대리</span>
+				</div>
+				<span class="user-divider">|</span>
+				<div class="info-item">
+					<span class="label">성명:</span> <span class="value name"
+						th:text="${session.loginUser.emp_name}">임서재</span>
+				</div>
+			</div>
+
+			<div class="header-icons">
+				<button type="button" class="icon-btn" onclick="confirmLogout()">
+					<img th:src="@{/images/logout.PNG}" alt="로그아웃">
+				</button>
+				<button type="button" class="icon-btn note-icon-wrapper"
+					onclick="location.href='/note'">
+					<img th:src="@{/images/note.PNG}" alt="쪽지"> <span
+						class="note-badge-count"
+						th:if="${unreadCount != null and unreadCount > 0}"
+						th:text="${unreadCount}">N</span>
+				</button>
+				<button type="button" class="icon-btn" onclick="togglePopup()">
+					<img th:src="@{/images/menu.PNG}" alt="메뉴">
+				</button>
+			</div>
+		</div>
+
+		<div id="menuPopup" class="menu-dropdown-card" style="display: none;">
+			<div class="list-label">바로가기</div>
+			<button class="menu-item-btn" onclick="location.href='/favorites'">⭐
+				즐겨찾기</button>
+			<button class="menu-item-btn" onclick="location.href='/myPosts'">✍
+				내 활동내역</button>
+			<button class="menu-item-btn"
+				onclick="location.href='/list?b_no=7777'"
+				style="color: #2563eb; font-weight: bold;">🙋‍♂️ 1:1 문의내역</button>
+			<div class="menu-divider"></div>
+			<div class="employee-list-area">
+				<div class="list-label">사원 목록</div>
+				<div class="employee-scroll-box">
+					<button th:each="user : ${userList}" class="emp-row-btn"
+						type="button" th:onclick="openMemberInfo(this)"
+						th:data-name="${user.emp_name}" th:data-rank="${user.rnk_name}"
+						th:data-dept="${user.dept_name}" th:data-tel="${user.emp_tel}"
+						th:data-emailp="${user.user_email}"
+						th:data-email="${user.emp_email}" th:data-note="${user.user_note}"
+						th:data-state="${user.user_state}"
+						th:data-photo="${user.emp_photo_name}"
+						th:data-no="${user.user_no}">
+
+						<div class="emp-info-wrapper">
+							<span class="emp-name" th:text="${user.emp_name}">이름</span> <span
+								class="emp-rank" th:text="${user.rnk_name}">직급</span>
+						</div>
+						<span class="status-indicator"
+							th:classappend="${user.user_state == 'ONLINE' ? 'on' : (user.user_state == 'AWAY' ? 'away' : 'off')}">
+						</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal-overlay-blur" id="memberPopup"
+			style="display: none;">
+			<div class="profile-card">
+				<div class="profile-header">
+					<h2 id="info_nameTitle">상세 정보</h2>
+					<button type="button" class="btn-close-icon"
+						onclick="closeInfoPopup()">×</button>
+				</div>
+				<div class="profile-body">
+					<div class="profile-left">
+						<div class="profile-img-wrapper">
+							<img src="/images/default_profile.jpg" id="info_photoImg"
+								alt="프로필">
+						</div>
+						<div class="profile-status-box">
+							<span id="info_stateDot" class="status-dot"></span> <span
+								id="info_stateText" class="status-text">오프라인</span>
+						</div>
+					</div>
+					<div class="profile-right">
+						<div class="info-group">
+							<label>상태 메시지</label>
+							<div class="info-content note-box" id="info_note"></div>
+						</div>
+						<div class="info-grid">
+							<div class="info-item">
+								<label>이름</label> <span id="info_name"></span>
+							</div>
+							<div class="info-item">
+								<label>직책</label> <span id="info_rank"></span>
+							</div>
+							<div class="info-item">
+								<label>부서</label> <span id="info_dept"></span>
+							</div>
+							<div class="info-item">
+								<label>내선</label> <span id="info_tel"></span>
+							</div>
+						</div>
+						<div class="info-group">
+							<label>이메일 (사내)</label>
+							<div class="info-content" id="info_email"></div>
+						</div>
+						<div class="info-group">
+							<label>이메일 (개인)</label>
+							<div class="info-content" id="info_emailP"></div>
+						</div>
+					</div>
+				</div>
+				<div class="profile-footer">
+					<button type="button" class="btn-primary-modal"
+						onclick="closeInfoPopup()">확인</button>
+					<button type="button" class="btn-outline-modal" id="btnEditProfile"
+						style="display: none;" onclick="openEditPopup()">정보 수정</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal-overlay-blur" id="editPopup"
+			style="display: none; z-index: 2000;">
+			<div class="profile-card">
+				<div class="profile-header">
+					<h2>내 정보 수정</h2>
+					<button type="button" class="btn-close-icon"
+						onclick="closeEditPopup()">×</button>
+				</div>
+				<form id="editForm">
+					<div class="profile-body edit-mode">
+						<div class="input-group">
+							<label>개인 이메일</label> <input type="text" class="modern-input"
+								name="user_email" id="edit_emailP">
+						</div>
+						<div class="input-group">
+							<label>전화번호</label> <input type="text" class="modern-input"
+								name="emp_tel" id="edit_tel">
+						</div>
+						<div class="input-group">
+							<label>상태 메시지</label> <input type="text" class="modern-input"
+								name="user_note" id="edit_note">
+						</div>
+						<div class="input-group">
+							<label>새 비밀번호</label> <input type="password" class="modern-input"
+								id="edit_pw" placeholder="변경 시에만 입력">
+						</div>
+						<div class="input-group">
+							<label>새 비밀번호 확인</label> <input type="password"
+								class="modern-input" id="edit_pw_check" placeholder="한 번 더 입력">
+						</div>
+					</div>
+					<div class="profile-footer">
+						<button type="button" class="btn-primary-modal"
+							onclick="submitEditForm()">저장</button>
+						<button type="button" class="btn-outline-modal"
+							onclick="closeEditPopup()">취소</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<script>
+            function togglePopup() {
+                const popup = document.getElementById('menuPopup');
+                if(popup) popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+            }
+            window.addEventListener('click', function(e) {
+                const popup = document.getElementById('menuPopup');
+                   if (popup && popup.style.display === 'flex' && !popup.contains(e.target) && !e.target.closest('.icon-btn')) { 
+                    popup.style.display = 'none'; 
+                }
+            });
+            function closeInfoPopup() { document.getElementById('memberPopup').style.display = 'none'; }
+            function openMemberInfo(element) {
+                // 사용자 정보 바인딩 로직 그대로 유지
+                const targetUserNo = element.getAttribute('data-no');
+                document.getElementById('info_nameTitle').innerText = element.getAttribute('data-name') + "님 상세 정보";
+                document.getElementById('info_name').innerText = element.getAttribute('data-name');
+                document.getElementById('info_rank').innerText = element.getAttribute('data-rank');
+                document.getElementById('info_dept').innerText = element.getAttribute('data-dept');
+                document.getElementById('info_tel').innerText = element.getAttribute('data-tel') || '-';
+                document.getElementById('info_email').innerText = element.getAttribute('data-email') || '-';
+                document.getElementById('info_emailP').innerText = element.getAttribute('data-emailp') || '-';
+                document.getElementById('info_note').innerText = element.getAttribute('data-note') || '상태 메시지가 없습니다.';
+                
+                const state = element.getAttribute('data-state');
+                const stateDot = document.getElementById('info_stateDot');
+                const stateText = document.getElementById('info_stateText');
+                stateDot.className = 'status-dot';
+                if (state === 'ONLINE') { stateDot.classList.add('blue-dot'); stateText.innerText = "온라인"; }
+                else if (state === 'AWAY') { stateDot.classList.add('yellow-dot'); stateText.innerText = "자리비움"; }
+                else { stateDot.classList.add('gray-dot'); stateText.innerText = "오프라인"; }
+
+                const photoName = element.getAttribute('data-photo');
+                document.getElementById('info_photoImg').src = (photoName && photoName !== 'null') ? '/images/' + photoName : '/images/default_profile.jpg';
+
+                const loggedInUserNo = document.getElementById('loggedInUserNo').value;
+                const editBtn = document.getElementById('btnEditProfile');
+                editBtn.style.display = (loggedInUserNo && targetUserNo && String(loggedInUserNo) === String(targetUserNo)) ? 'inline-block' : 'none';
+                
+                document.getElementById('memberPopup').style.display = 'flex';
+            }
+            function openEditPopup() {
+                closeInfoPopup();
+                document.getElementById('editPopup').style.display = 'flex';
+                document.getElementById('edit_note').value = document.getElementById('info_note').innerText;
+                document.getElementById('edit_emailP').value = document.getElementById('info_emailP').innerText;
+                document.getElementById('edit_tel').value = document.getElementById('info_tel').innerText;
+            }
+            function closeEditPopup() { document.getElementById('editPopup').style.display = 'none'; }
+            function submitEditForm() {
+            	const pw = document.getElementById('edit_pw').value;
+                const pwCheck = document.getElementById('edit_pw_check').value;
+                if(pw && pw !== pwCheck) { alert("새 비밀번호가 일치하지 않습니다."); return; }
+                
+                const payload = {
+                    user_no: Number(document.getElementById('loggedInUserNo').value),
+                    emp_no: Number(document.getElementById('loggedInEmpNo').value),
+                    user_email: document.getElementById('edit_emailP').value,
+                    emp_tel: document.getElementById('edit_tel').value,
+                    user_note: document.getElementById('edit_note').value,
+                    user_pw: pw
+                };
+                if(!confirm("정보를 수정하시겠습니까?")) return;
+                fetch('/clientApi/updateMyInfo', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                }).then(res => res.text()).then(result => {
+                    if(result === "success") { alert("정보가 수정되었습니다."); location.reload(); }
+                    else { alert("수정에 실패했습니다."); }
+                }).catch(err => console.error(err));
+            }
+            
+            function confirmLogout() {
+                if (confirm("정말 로그아웃 하시겠습니까?")) { location.href = '/logout'; }
+            }
+        </script>
+	</header>
+
+	<nav class="sidebar" th:fragment="mySidebar">
+		
+		<div
+			th:if="${session.loginUser != null and (session.loginUser.user_role == 'MASTER' or session.loginUser.user_role == 'ADMIN')}">
+			<a class="sidebar-simple-link" th:href="@{/master/boards(b_no=1001)}">관리자
+				페이지</a>
+		</div>
+
+
+		<div class="sidebar-divider"></div>
+
+		<div class="sidebar-section">
+			<div class="sidebar-section-title" onclick="toggleAccordion(this)">
+				<span class="arrow-icon">▶</span> 게시판
+			</div>
+			<ul class="sidebar-list">
+				<li th:each="board : ${boards}"
+					th:if="${board.b_no >= 2000 AND board.b_no <= 3000}"><a
+					class="sidebar-link" th:href="@{/list(b_no=${board.b_no})}"
+					th:text="${board.b_name}">게시판</a></li>
+			</ul>
+		</div>
+		<div class="sidebar-section">
+			<div class="sidebar-section-title" onclick="toggleAccordion(this)">
+				<span class="arrow-icon">▶</span> 프로젝트
+			</div>
+			<ul class="sidebar-list">
+				<li th:each="board : ${boards}"
+					th:if="${board.b_no > 100 AND board.b_no <= 1000}"><a
+					class="sidebar-link" th:href="@{/list(b_no=${board.b_no})}"
+					th:text="${board.b_name}">프로젝트</a></li>
+			</ul>
+		</div>
+		<div class="sidebar-section">
+			<div class="sidebar-section">
+				<div class="sidebar-section-title" onclick="toggleAccordion(this)">
+					<span class="arrow-icon">▶</span> 공용
+				</div>
+				<ul class="sidebar-list">
+					<li th:each="board : ${boards}"
+						th:if="${board.b_no > 3000 AND board.b_no < 10000 AND board.b_no != 7777 AND board.b_no != 8888}">
+						<a class="sidebar-link" th:href="@{/list(b_no=${board.b_no})}"
+						th:text="${board.b_name}">공용</a>
+					</li>
+				</ul>
+			</div>
+			<div class="sidebar-section-title" onclick="toggleAccordion(this)">
+				<span class="arrow-icon">▶</span> 점심
+			</div>
+			<ul class="sidebar-list">
+				<li><a class="sidebar-link" th:href="@{/foodlist}">점심메뉴 게시판</a></li>
+			</ul>
+		</div>
+
+		<script>
+            function toggleAccordion(titleObj) {
+                const list = titleObj.nextElementSibling;
+                const arrow = titleObj.querySelector('.arrow-icon');
+                if (list.style.maxHeight) {
+                    list.style.maxHeight = null; arrow.innerHTML = "▶"; titleObj.classList.remove('expanded');
+                } else {
+                    list.style.maxHeight = list.scrollHeight + "px"; arrow.innerHTML = "▼"; titleObj.classList.add('expanded');
+                }
+            }
+           
+        </script>
+	</nav>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>삭제된 게시글 관리</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+
+</head>
+<body>
+	<header th:replace="~{layout/layout :: myHeader}"></header>
+	
+
+	<div
+		th:if="${session.loginUser != null and session.loginUser.user_role == 'MASTER'}"
+		th:replace="~{layout/master-layout :: masterTabs('boards')}"></div>
+
+	<div class="container">
+		<main class="content">
+
+			<div class="header-row">
+				<div class="welcome-msg">
+					<span style="font-size: 20px; font-weight: bold; color: #334155;">🗑️
+						삭제된 게시글 관리</span> <span
+						style="font-size: 14px; color: #666; margin-left: 10px;">삭제된
+						게시글을 복구하거나 영구적으로 삭제합니다.</span>
+				</div>
+			</div>
+
+			<table class="board-table">
+				<colgroup>
+					<col width="5%">
+					<col width="5%">
+					<col width="15">
+					<col width="5%">
+					<col width="45%">
+					<col width="15%">
+				</colgroup>
+				<thead>
+					<tr>
+						<th class="num">번호</th>
+						<th class="date">삭제일(작성일)</th>
+						<th class="content">게시판</th>
+						<th class="name">작성자</th>
+						<th class="content">제목</th>
+						<th class="function">관리</th>
+					</tr>
+				</thead>
+
+				<tbody>
+				    <tr th:each="article, stat : ${articles}">
+				        <!-- 1. 번호 -->
+				        <td th:text="${stat.count}" style="text-align: center;">1</td>
+				        
+				        <!-- 2. 날짜 -->
+				        <td th:text="${article.art_date}" style="text-align: center; color: #888;">2026-02-09</td>
+				        
+				        <td style="text-align: center;">
+				            <span th:text="${article.b_name}" style="font-weight: bold; color: #334155;">게시판</span>
+				        </td>
+				
+				        <!-- 4. 작성자 -->
+				        <td style="text-align: center;">
+				            <span th:text="${article.emp_name}" style="font-weight: bold; color: #334155;">이름</span> 
+				            <span th:text="${article.rnk_name}" style="font-size: 12px; color: #94a3b8;">직급</span>
+				        </td>
+				
+				        <!-- 5. 제목 -->
+				        <td th:if="${article.b_no != 8888}" style="text-align: left; padding-left: 20px;">
+				            <a th:href="@{/view(art_no=${article.art_no}, url_from='deleteArticle')}" 
+				               th:text="${article.art_title}"
+				               style="color: #475569; text-decoration: none; font-weight: 500;">제목</a>
+				        </td>
+				        <td th:if="${article.b_no == 8888}" style="text-align: left; padding-left: 20px;">
+				            <a th:href="@{/foodview(art_no=${article.art_no}, url_from='deleteArticle')}" 
+				               th:text="${article.art_title}"
+				               style="color: #475569; text-decoration: none; font-weight: 500;">제목</a>
+				        </td>
+				
+				        <td style="text-align: center;">
+				            <div class="board-actions">
+				                <button class="btn-action btn-restore"
+				                    th:onclick="|restorationArticle(${article.art_no})|">
+				                    복구
+				                </button>
+				                <button class="btn-action btn-delete-perm"
+				                    th:onclick="|deleteArticle(${article.art_no})|">
+				                    삭제
+				                </button>
+				            </div>
+				        </td>
+				    </tr>
+				
+				    <!-- 게시글 없을 때 -->
+				    <tr th:if="${#lists.isEmpty(articles)}">
+				        <td colspan="6" style="text-align: center; padding: 50px; color: #cbd5e1;">
+				            삭제된 게시글 내역이 없습니다.
+				        </td>
+				    </tr>
+				</tbody>
+
+
+			</table>
+
+		
+
+			<div th:if="${keyword != null && keyword != ''}">
+				<strong>"<span th:text="${keyword}"></span>"
+				</strong>(으)로 검색 결과 총 <span th:text="${totalCount}"></span>개 검색 되었습니다.
+			</div>
+                <div class="pagination">
+				   	<a th:if="${page > 1}" th:href="@{/master/deletedArticle(searchType=${searchType}, 
+				    	keyword=${keyword}, 
+				    	page=${page - 1}, 
+				    	pageSize=${pageSize})}"> 
+				    	&laquo; <!-- 왼쪽 화살표 --> 
+				    </a>
+				    <span th:each="i : ${#numbers.sequence((page - 2) > 1 ? (page - 2) : 1, (page + 2) < totalPage ? (page + 2) : totalPage)}">
+				        <a th:href="@{/master/deletedArticle(searchType=${searchType},
+                					keyword=${keyword}, 
+                					page=${i},
+                					pageSize=${pageSize}
+                					)}"
+				           th:text="${i}"
+				           th:classappend="${i == page} ? 'active' : ''">
+				        </a>
+				    </span>	
+					<a th:if="${page < totalPage}" th:href="@{/master/deletedArticle(searchType=${searchType}, 
+				    	keyword=${keyword}, 
+				    	page=${page + 1}, 
+				    	pageSize=${pageSize})}"> &raquo; <!-- 오른쪽 화살표 --> 
+				    </a>		
+				</div>						
+				<div class="search-section">
+					<form th:action="@{/master/deletedArticle}" method = "get">
+						<select name = "searchType">
+							<option value = "art_title" th:selected="|${searchType == 'art_title'}">게시글 제목</option>
+							<option value="emp_name" th:selected="|${searchType == 'emp_name'}|">작성자</option> 
+							<option value="b_name" th:selected="|${searchType == 'b_name'}|">게시판 이름</option>
+						</select>
+						<input type="text" name = "keyword" placeholder="검색 내용을 입력해주세요."
+							style="padding: 5px; width: 250px;" th:value="|${keyword}|">
+						<input type="hidden" name = "pageSize" placeholder="10" min="1" th:value="|${pageSize}|"
+							style="padding: 5px; width: 100px;">
+						<button type = "submit"
+							style="padding: 5px 15px; background: #7ab730; color: white; border: none; cursor: pointer;">검색</button>			
+					</form>
+				</div>
+		</main>
+	</div>
+
+	<script>
+    // 1. 게시글 복구
+    function restorationArticle(artNo) {
+        if(!confirm("이 게시글을 다시 게시판으로 복구하시겠습니까?")) return;
+
+        fetch('/master/restorationArticle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ art_no: artNo })
+        })
+        .then(res => res.text())
+        .then(result => {
+            if (result === "success") {
+                alert("게시글이 정상적으로 복구되었습니다.");
+                location.reload();
+            } else {
+                alert("복구에 실패했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("서버 통신 오류가 발생했습니다.");
+        });
+    }
+    
+    // 2. 게시글 영구 삭제
+    function deleteArticle(artNo) {
+        if (!confirm("🚨 주의: 정말로 영구 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) return;
+
+        fetch('/master/deleteArticle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ art_no: artNo })
+        })
+        .then(res => res.text())
+        .then(result => {
+            if (result === "success") {
+                alert("게시글이 영구 삭제되었습니다.");
+                location.reload();
+            } else {
+                alert("삭제 실패");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("서버 통신 오류가 발생했습니다.");
+        });
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>맛집 등록 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+<style>
+    .search-group { display: flex; gap: 10px; margin-bottom: 10px; }
+    #write-map { width: 100%; height: 350px; display: none; margin-top: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    #placesList { 
+        margin-top: 10px; padding: 0; list-style: none; 
+        max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; 
+        border-radius: 8px; display: none; background: white;
+    }
+    #placesList li { padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+    #placesList li:hover { background-color: #f8fafc; }
+    #placesList li .place-name { font-weight: bold; color: #4f46e5; display: block; }
+    #placesList li .place-addr { font-size: 0.85rem; color: #64748b; }
+    .info-readonly { background-color: #f1f5f9 !important; color: #475569; font-weight: 500; border: 1px solid #cbd5e1 !important; line-height: 1.8; }
+    .form-label-sub { font-size: 0.9rem; color: #6366f1; font-weight: bold; margin-bottom: 5px; display: block; }
+
+    /* ✨ 상세페이지와 통일한 커스텀 오버레이 스타일 */
+    .custom-overlay {
+        position: relative;
+        bottom: 50px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        border-bottom: 3px solid #6366f1;
+        background: #fff;
+        padding: 8px 15px;
+        text-align: center;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        font-size: 14px;
+        font-weight: bold;
+        color: #1e293b;
+    }
+    .custom-overlay::after {
+        content: '';
+        position: absolute;
+        width: 11px;
+        height: 9px;
+        left: 50%;
+        margin-left: -6px;
+        bottom: -9px;
+        background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png');
+    }
+</style>
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+        <main class="content">
+            <div class="write-container">
+                <h2 style="margin-bottom: 30px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px;">🍴 맛집 등록</h2>
+
+                <form id="writeForm" th:action="@{/foodwrite}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="b_no" value="8888">
+                    <input type="hidden" id="final_content" name="art_content">
+
+                    <div class="form-group">
+                        <label class="form-label">게시글 제목</label> 
+                        <input type="text" name="art_title" class="modern-input" placeholder="예: [서면] 맛집 추천" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📍 맛집 위치 찾기</label>
+                        <div class="search-group">
+                            <input type="text" id="keyword" class="modern-input" placeholder="식당 이름을 입력하세요" onkeypress="if(event.keyCode==13){searchPlaces(); return false;}">
+                            <button type="button" class="btn-search" onclick="searchPlaces()" style="background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; padding: 0 20px;">🔍 검색</button>
+                        </div>
+                        <ul id="placesList"></ul>
+                        <div id="write-map"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📋 선택된 식당 정보</label>
+                        <textarea id="auto-info" class="modern-input info-readonly" style="height: 120px; resize: none;" readonly placeholder="맛집을 검색하면 정보가 자동 입력됩니다."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">✏️ 맛집 솔직 후기</label>
+                        <span class="form-label-sub">🍴 추천 메뉴</span>
+                        <input type="text" id="res_menu" class="modern-input" style="margin-bottom:15px;" placeholder="예: 멸치칼국수">
+                        <span class="form-label-sub">👍 장점</span>
+                        <input type="text" id="res_plus" class="modern-input" style="margin-bottom:15px;" placeholder="예: 저렴하고 양이 많음">
+                        <span class="form-label-sub">📝 한줄평</span>
+                        <textarea id="user_review" class="modern-input" style="height: 100px;" placeholder="이 식당을 한마디로 표현하자면?"></textarea>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button type="button" class="btn-submit" onclick="submitWithMerge()">등록하기</button>
+                        <button type="button" class="btn-cancel" onclick="history.back()">취소</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d4b30a74e605ae4d61e65b8e77db1bc6&libraries=services"></script>
+    <script>
+        let map, marker, customOverlay; // infowindow 대신 customOverlay 사용
+        const ps = new kakao.maps.services.Places();
+        const COMPANY_LAT = 35.0986, COMPANY_LNG = 129.0289;
+
+        function searchPlaces() {
+            const keyword = document.getElementById('keyword').value;
+            if (!keyword.trim()) { alert('키워드를 입력해주세요!'); return; }
+            ps.keywordSearch(keyword, (data, status) => {
+                if (status === kakao.maps.services.Status.OK) {
+                    const listEl = document.getElementById('placesList');
+                    listEl.innerHTML = '';
+                    data.forEach(p => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="place-name">${p.place_name}</span><span class="place-addr">${p.road_address_name || p.address_name}</span>`;
+                        li.onclick = () => selectPlace(p);
+                        listEl.appendChild(li);
+                    });
+                    listEl.style.display = 'block';
+                } else { alert('검색 결과가 없습니다.'); }
+            });
+        }
+
+        function selectPlace(place) {
+            const name = place.place_name;
+            const addr = place.road_address_name || place.address_name;
+            document.getElementById('placesList').style.display = 'none';
+            const coords = new kakao.maps.LatLng(place.y, place.x);
+            const mapDiv = document.getElementById('write-map');
+            mapDiv.style.display = "block";
+            
+            if (!map) {
+                map = new kakao.maps.Map(mapDiv, { center: coords, level: 3 });
+                marker = new kakao.maps.Marker({ map: map, position: coords });
+            } else { 
+                map.setCenter(coords); 
+                marker.setPosition(coords); 
+            }
+
+            // ✨ 커스텀 오버레이 적용 (기존 오버레이가 있으면 삭제 후 생성)
+            if (customOverlay) customOverlay.setMap(null);
+            
+            customOverlay = new kakao.maps.CustomOverlay({
+                map: map,
+                position: coords,
+                content: `<div class="custom-overlay">${name}</div>`,
+                yAnchor: 1 
+            });
+
+            setTimeout(() => map.relayout(), 100);
+
+            // 거리 계산 로직
+            const R = 6371;
+            const dLat = (place.y - COMPANY_LAT) * Math.PI / 180;
+            const dLon = (place.x - COMPANY_LNG) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(COMPANY_LAT*Math.PI/180)*Math.cos(place.y*Math.PI/180)*Math.sin(dLon/2)**2;
+            const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distStr = dist < 1 ? `${Math.round(dist * 1000)}m` : `${dist.toFixed(1)}km`;
+
+            document.getElementById('auto-info').value = `[맛집 정보]\n🍴 식당명: ${name}\n🏠 식당 주소: ${addr}\n📏 거리: 약 ${distStr}`;
+        }
+
+        function submitWithMerge() {
+            const info = document.getElementById('auto-info').value;
+            const menu = document.getElementById('res_menu').value || "정보 없음";
+            const plus = document.getElementById('res_plus').value || "정보 없음";
+            const review = document.getElementById('user_review').value;
+            if(!info || !review) { alert("식당 선택과 한줄평은 필수입니다."); return; }
+            
+            document.getElementById('final_content').value = `${info}SPLIT_HERE${menu}SPLIT_HERE${plus}SPLIT_HERE${review}`;
+            document.getElementById('writeForm').submit();
+        }
+    </script>
+</body>
+</html>

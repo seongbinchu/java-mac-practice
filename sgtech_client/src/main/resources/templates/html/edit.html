@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>게시글 수정 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body>
+    <header th:replace="~{layout/layout :: myHeader}"></header>
+
+    <div class="container">
+        <nav th:replace="~{layout/layout :: mySidebar}"></nav>
+
+        <main class="content" style="padding-top: 30px;">
+
+            <div class="edit-container">
+                <div class="edit-header-title">게시글 수정</div>
+
+                <form id="editForm">
+                    <input type="hidden" name="art_no" th:value="${article.art_no}">
+                    
+                    <div class="input-group">
+                        <label class="input-label">제목</label>
+                        <input type="text" name="art_title" class="input-title" 
+                               th:value="${article.art_title}" placeholder="제목을 입력하세요">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">내용</label>
+                        <textarea name="art_content" class="input-content"
+                                  th:text="${article.art_content}" placeholder="내용을 입력하세요"></textarea>
+                    </div>
+
+                    <div class="edit-actions">
+                        <button type="button" class="btn-cancel" 
+                                th:onclick="|location.href='/view?art_no=${article.art_no}'|">취소</button>
+                        <button type="button" class="btn-save" onclick="submitEdit()">수정 완료</button>
+                    </div>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+    function submitEdit() {
+        const titleInput = document.querySelector('input[name="art_title"]');
+        const contentInput = document.querySelector('textarea[name="art_content"]');
+
+        if (!titleInput.value.trim()) {
+            alert("제목을 입력해주세요.");
+            titleInput.focus();
+            return;
+        }
+        if (!contentInput.value.trim()) {
+            alert("내용을 입력해주세요.");
+            contentInput.focus();
+            return;
+        }
+
+        if(!confirm("수정된 내용을 저장하시겠습니까?")) return;
+
+        const art_no = document.querySelector('input[name="art_no"]').value;
+        const art_title = titleInput.value;
+        const art_content = contentInput.value;
+
+        const params = new URLSearchParams();
+        params.append('art_no', art_no);
+        params.append('art_title', art_title);
+        params.append('art_content', art_content);
+
+        fetch('/articles/update', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded' 
+            },
+            body: params.toString()
+        })
+        .then(res => res.text())
+        .then(result => {
+            if(result.trim() === "success") {
+                alert("성공적으로 수정되었습니다.");
+                location.href = "/view?art_no=" + art_no;
+            } else {
+                alert("수정에 실패했습니다.");
+            }
+        })
+        .catch(err => {
+            console.error("에러 발생:", err);
+            alert("통신 중 오류가 발생했습니다.");
+        });
+    }
+    </script>
+</body>
+</html>

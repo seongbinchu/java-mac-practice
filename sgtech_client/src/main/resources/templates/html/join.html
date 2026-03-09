@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>회원가입 - Smart Greentech</title>
+<link rel="stylesheet" th:href="@{/style/style.css}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="auth-card join-mode">
+            
+            <div class="auth-header">
+                <h2 class="page-title">회원가입</h2>
+                <p class="brand-subtitle">사원 인증 후 비밀번호를 설정해주세요.</p>
+            </div>
+
+            <form name="joinForm" th:action="@{/join}" method="post" class="auth-form">
+                <div class="input-group">
+                    <label>사번</label>   
+                    <input type="text" id="emp_no" name="emp_no" class="auth-input" placeholder="사번 입력" required>
+                </div>
+                
+                <div class="input-group"> 
+                    <label>사내 비밀번호</label> 
+                    <input type="password" id="emp_pw" name="emp_pw" class="auth-input" placeholder="사내 비밀번호 입력" required>                    
+                </div>
+                
+                <div class="join_sumit_btn">
+                    <button type="button" class="btn-full-primary" onclick="checkValidit()">인증하기</button>
+                </div>
+
+                <p id="valid-msg" class="status-msg fail" style="display: none;">🚨 인증에 실패했습니다. 정보를 확인해주세요.</p>
+                
+                <div id="board_user_pwd" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <p class="status-msg success">✅ 인증되었습니다. 사용할 비밀번호를 입력하세요.</p>
+                    
+                    <div class="input-group"> 
+                        <label>게시판 비밀번호</label> 
+                        <input type="password" id="user_pw" name="user_pw" class="auth-input" placeholder="새로운 비밀번호" required>
+                    </div>
+        
+                    <div class="input-group">
+                        <label>비밀번호 확인</label> 
+                        <input type="password" id="user_pw_re" name="user_pw_re" class="auth-input" placeholder="비밀번호 재입력" required>
+                    </div>
+        
+                    <div class="auth-actions">
+                        <button type="submit" class="btn-full-primary">가입 완료</button>
+                        <button type="button" class="btn-full-outline cancel" onclick="history.back()">취소</button>
+                    </div>
+                </div>
+                
+                <div id="pre-cancel-btn" class="auth-actions" style="margin-top: 20px;">
+                     <button type="button" class="btn-full-outline" onclick="history.back()">뒤로가기</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            // [추가] 서버에서 리다이렉트 시 보낸 메시지(alert) 처리
+            /*<![CDATA[*/
+            var serverMessage = [[${msg}]];
+            if (serverMessage) {
+                alert(serverMessage);
+            }
+            /*]]>*/
+
+            var joinForm = document.joinForm;
+            var boardUserPwd = document.getElementById('board_user_pwd');
+            var preCancelBtn = document.getElementById('pre-cancel-btn');
+         
+            // 사원 인증 (Fetch API)
+            window.checkValidit = function() {
+                const msg = document.getElementById('valid-msg');
+                const empNo = document.getElementById('emp_no');
+                const empPw = document.getElementById('emp_pw');
+                
+                if(!empNo.value || !empPw.value) {
+                    alert("사번과 사내 비밀번호를 모두 입력해주세요.");
+                    return;
+                }
+                
+                fetch("join/validate", { 
+                    method: "POST", 
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
+                    body: "emp_no=" + empNo.value + "&emp_pw=" + empPw.value
+                }).then(response => response.text())
+                .then(data => { 
+                    if (data === 'success') {
+                        msg.style.display = 'none';
+                        empNo.readOnly = true;
+                        empPw.readOnly = true;
+                        empNo.style.backgroundColor = "#f9fafb";
+                        empPw.style.backgroundColor = "#f9fafb";
+                        
+                        boardUserPwd.style.display = 'block'; 
+                        preCancelBtn.style.display = 'none';  
+                    } else if(data === 'duplicated') {
+                        alert('이미 가입된 사용자입니다.');
+                        location.href = "/mainpage";     
+                    } else { 
+                        msg.style.display = 'block';
+                    }
+                }).catch(error => { 
+                    console.error("Validate Error : ", error); 
+                    alert("서버 오류가 발생했습니다.");
+                });
+            };
+            
+            // 폼 제출 전 유효성 검사
+            joinForm.addEventListener('submit', function(e) {
+                const userPw = document.getElementById('user_pw').value; 
+                const userPwRe = document.getElementById('user_pw_re').value;
+            
+                if(userPw !== userPwRe){
+                    e.preventDefault(); // 제출 방지
+                    alert('비밀번호가 일치하지 않습니다.');
+                    return false;
+                }
+                alert("가입이 성공했습니다. 로그인해서 이용하실 수 있습니다.");
+                joinForm.submit();
+                
+                // 검증 성공 시 폼이 서버로 전송됨
+            });
+        });
+    </script>
+</body>
+</html>
