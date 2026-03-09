@@ -1,0 +1,56 @@
+DECIMAL(10, 2)
+10자리 숫자 중 소수점밑으로 2자리
+
+SELECT DISTINCT category FROM sales;
+
+중복제거[2]
+
+
+SELECT category, COUNT(sale_id) FROM sales GROUP BY category;
+
+레코드 결과 값 빈도 category 중복제거한 값[2] 빈도와 동일
+
+WHERE절 레코드 하나하나씩 검사 후 출력
+=> SELECT FROM 후 WHERE
+
+SELECT category , COUNT(sale_id) AS sale_count FROM sales GROUP BY category HAVING sale_count >= 3;
+
+FROM => WHERE => GROUP BY => HAVING => SELECT => ORDER BY
+
+SELECT에서 별칭설정해서 HAVING에서 별칭 사용 원치적으로 표쥰 SQL X
+
+MY SQL 포함한 몇면 SQL만 가능
+
+HAVING 그룹핑 된 그룹 조건 검사
+
+==> where 집계함수 사용 못함 , HAVING 집계함수 사요 가능
+
+HAVING 과 WHERE의 차이 HAVING에는 개별 레코드 사용 X?
+
+SELECT vend_name,vend_address FROM vendors WHERE vend_id = (SELECT vend_id FROM products WHERE prod_name = 'king doll');
+
+쿼리문 안에 있는 쿼리문 => 서브쿼리
+
+구식
+SELECT vend_name,vend_address from products,vendors WHERE products.vend_id = vendors.vend_id AND prod_name='king doll'
+
+표준
+select vend_name,vend_address FROM vendors INNER JOIN products ON vendors.vend_id = products.vend_id WHERE prod_name = 'king doll';
+
+결합규칙 ON절
+
+조인 중 이너조인
+
+
+아우터 조인
+left outer join
+right outer join
+full outer join
+
+크로스조인
+연결 가능한 모든 경우의수 조합
+연산 목적 X 데이터베이스 성능체크
+
+셀프조인
+물리적으로 1개의 테이블을 논리적으로 다수개로 분할하여 조인(inner join, outer join)
+동일한 테이블에서 참조가 일어난다

@@ -1,0 +1,158 @@
+reflect import 
+리플렉션[코드 생성보다 자동화 목적]
+
+Class someObj = Class.forName("kr.ac.green.SomeObj");
+			//Class someObj = Class.forName("SomeObj"); package X
+
+어떤 정보를 가진 클래스인가
+클래스 정보를 가진 Class
+
+someObj 타입들=> 같은 타입에 Class객체 단 하나 존재
+someObj들이 가진 메소드같은것을 사용할 떄 어떤 someObj의 메소드인지 판단할 때 사용
+=>someObj들마다 정보생성하면 중복 많음
+
+Foo 안에 num이 있는것(형태는) 모두 동일 값은 모두 다를 수 있음
+누구의 num인가 접근 알 수 X
+누구 값인가는 알 수 O
+
+Heap에는 멤버변수 값만 올라가고 나머지 정보는 Class 객체
+
+*프로그램 시작 시 프로그램로더가 클래스정보를 먼저 모두 뽑는다
+[static놈들 먼저 등록되는 이유]
+
+! 문자열 기반으로 클래스객체 정보 얻어낼 수 있다
+
+int.class
+int를 나타내는 Class
+someObj.getConstructor(int.class) = > 파라미터로 int를 받는 생성자 접근
+
+상속받은 Method들은 물리적으로 존재하지 않는다
+
+
+IOC
+inversion of controll
+제어의 역전
+
+라이브러리 vs 프레임워크[형태가 정해져있음 장점이자 단점]
+
+DROP TABLE car;
+
+CREATE TABLE car(
+	car_id					INT					PRIMARY KEY		AUTO_INCREMENT,
+	car_model				CHAR(200)			NOT NULL,
+	car_price				INT					NOT	NULL,
+	car_desc					VARCHAR(200)
+);
+
+-- table schema 확인
+DESC car;
+
+
+SELECT * FROM car;
+
+-- insert data
+INSERT INTO car (car_model,car_price,car_desc) VALUES('sonata',3000,'not bad');
+	
+INSERT INTO car(car_desc,car_model,car_price) VALUES('good','SM7',3700);
+	
+INSERT INTO car(car_model,car_price) VALUES ('g80',6000);
+
+INSERT INTO car(car_model,car_price,car_desc) 
+	VALUES ('avante',2500,'bad'),('morning',1800,'greate'),('k5',3000,'trash'),('mailbu',3100,'cool');
+
+-- 가격이 2500 이상 , 5000이하의 차 구하라
+
+SELECT car_id,car_model,car_price FROM car;
+SELECT * FROM car WHERE car_price >= 2500 AND car_price =<5000;
+SELECT * FROM car WHERE car_price BETWEEN 2500 AND 5000;
+
+--가격이 3000이거나 3700인 자동차
+SELECT * FROM car WHERE car_price =3000 OR car_price=3700;
+SELECT * FROM car WHERE car_price IN(3000,3700);
+
+--가격이 3000이 아닌 차량
+SELECT * FROM car WHERE NOT car_price 3000;
+SELECT * FROM car WHERE car_price <>3000;
+SELECT * FROM car WHERE car_price !=3000;
+
+SELECT * FROM car WHERE car_desc IS NULL;
+-- FROM 절 1st = > WHERE => SELECT
+
+--가격으로 내림차순 정렬
+SELECT * FROM car ORDER BY car_price DESC;
+
+
+--가격으로 오름차순 정렬하고 가격이 같으면 id로 내림차순 정렬
+SELECT * FROM car ORDER by car_price,car_id DESC;
+
+--가격이 2500 이상인 자동차를 오름차순
+SELECT * FROM car where car_price>2500 ORDER BY car_price;
+-- FROM => WHERE => SELECT => ORDER BY
+
+--가격이 비싼 순으로 2~4등까지
+SELECT * FROM car ORDER by car_price DESC LIMIT 1,3; 
+
+-- wild card( % , _ )
+-- % : 0 ~ 무한대 
+-- _ : 글자 한개 
+
+-- a로 시작하는 모든 모델명
+SELECT * FROM car WHERE car_model LIKE 'a%';
+
+-- a가 들어가는 모든 모델
+SELECT * FROM car WHERE car_model LIKE '%a%';
+
+-- 시작이 a인 6글자 생략안됨
+SELECT * FROM car WHERE car_model LIKE 'a_____';
+
+
+-- 집계함수 : 스칼라값
+-- 열도 한개 값도 한개
+
+-- car의 레코드 개수
+SELECT COUNT(*) FROM car;
+-- 파라미터 열이름 = > null 제외함 
+SELECT COUNT(car_desc) FROM car;
+
+
+SELECT COUNT(*) car_count FROM car;
+SELECT COUNT(*) AS car_count FROM car;
+-- 별칭 부여 가능
+
+SELECT AVG(car_price) as car_price_AVG FROM car;
+SELECT SUM(car_price) AS car_price_SUM FROM car;
+SELECT MAX(car_price) AS car_price_SUM FROM car;
+SELECT MIN(car_price) AS car_price_SUM FROM car;
+
+SELECT CONCAT(car_model, ' is ' , car_price)AS car_infomation from car;
+
+SELECT UPPER(car_model) FROM car;
+
+-- 반올림해서 2자리 까지
+SELECT ROUND(123.456,2);
+-- 올림
+SELECT CEIL(123.456);
+-- 내림
+SELECT FLOOR(129.123);
+-- 현재시간 년 월 일 시 분 초
+SELECT NOW()
+-- 현재시간 년 월 일
+SELECT CURDATE();
+
+-- 날자 차이
+SELECT DATEDIFF('2025-12-01','2025-12-25');
+-- D-day
+SELECT DATEDIFF('2025-12-25',CURDATE());
+
+-- 조건문 참이면 A 거짓 B grade 별칭
+SELECT car_model,car_price, IF(car_price>=3000,'A','B') grade FROM car;
+
+
+SELECT car_model,car_price, 
+	CASE	
+		WHEN car_price < 2000 THEN 'd' 
+		WHEN car_price < 3000 THEN 'c'
+		WHEN car_price < 4000 THEN 'b'
+		ELSE 'a'
+	END AS grade
+FROM car;

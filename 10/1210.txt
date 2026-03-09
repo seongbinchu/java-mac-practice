@@ -1,0 +1,189 @@
+==================================================================
+
+1.info.jsp => infoSub.jsp
+<jsp:include page="infoSub.jsp">
+	<jsp:param name="type" value="B"/>
+	<%-- infoSub.jsp에게 전달할 파라미터를 정의 한다. 
+		type=A
+	--%>
+</jsp:include>
+	
+==================================================================
+
+
+2.body_main.jsp , body_sub.jsp
+	name : cbk
+	name : 최범균 name이 같은것이 파라미터 두개인것 이상한것 아님
+	body_main.jsp name 은 cbk밖에 못사용한다 최범균이라는 파라미터는 sub에서만 존재,사용
+	include를 하는 페이지는 사용 x
+	
+	a.jsp include b.jsp[myParam,first]		null
+	b.jsp include c.jsp[myParam,second]		first
+	c.jsp									first,second
+											셋 다 request객체 공유 
+
+셋다 request 공유하는 이유
+a.jsp 요청 => a.jsp 는 b.jsp include => b.jsp 는 c.jsp include
+응답은 a.jsp에서 나감[request 유지되는 시간] 
+
+==================================================================
+
+c 에서 특정 값을 연산해서 결과를 만들었을 때 a에서 쓰는 방법
+
+c.jsp
+request.setAttribute("result", new java.util.Date());
+
+a.jsp
+<%= ((java.util.Date)request.getAttribute("result")).getTime() %>
+==================================================================
+a.jsp 에서 setAttribute 하면
+<%  request.setAttribute("usingAttribute","hi"); %>
+
+b.jsp c.jsp 에서
+
+request.getAttribute("usingAttribute") 사용 가능
+
+parameter는 String 밖에 안돼서 여러개 써줘야하지만
+attribute Object 라 감싸는 복수데이터 사용 가능
+==================================================================
+
+	param 액션태그에서 include 던질 때 인코딩 결정
+
+	<jsp:param name="name" value="최범균"/>
+	해서 넘어갈 때
+	request.setCharacterEncoding("euc-kr");
+	해당 인코딩 방식으로 넘어간다	
+	
+================================================================== include 액션태그 끝
+include 액션태그[눈에 보이는쪽에 자주사용 [디자인]]
+
+논리적으로 다른 두 파일을 출력버퍼 상 합침
+======================================================
+<%@ include file="/includee.jspf" %>
+
+include 디렉티브 [중복되는 값,연산 소거 목적]
+
+물리적으로 다른 파일을 하나로 합쳐서 하나의 자바파일[서블릿수준]로 만듦
+
+어차피 하나로 합쳐지기 때문에 한곳에 선언정의된 변수
+공통으로 사용할 수 있음
+인클루드 디렉티브 위에 선언된 변수는 사용할 수 없음
+.jspf는 독립적으로 존재할 수 없고 인클루드디렉티브에 사용되기 위해
+존재하는 jsp코드조각 fragment
+
+jspf 변경시 새로운 java파일로 변환해야하는데 jsp에 규칙 x
+was 가 감지하고 변경해주는데 100프로 신뢰할 수 없다
+[헷갈리면 만들어진 java파일 지우기]
+======================================================
+web.xml
+
+<jsp-config>
+  	<jsp-property-group>
+  		<url-pattern>/view/*</url-pattern>
+  		<include-prelude>/common/variable.jspf</include-prelude>
+  		<include-coda>/common/footer.jspf</include-coda>
+  	</jsp-property-group>
+</jsp-config>
+
+12_10/view/에서 요청되는 모든 jsp는
+
+prelude jsp 제일 상단에 variable.jspf
+code jsp 제일 하단에 footer.jspf 
+
+인클루드해라
+
+인클루드 디렉티브 여러개에 해야할 때 , 수정해야할 때 
+이런 것 사용
+
+<url-pattern>/view/*</url-pattern>
+
+<url-pattern>*.jsp</url-pattern>
+
+config가 여러개라서 prelude,coda파일이 여러개가 된다면
+어디서 어떤 데이터를 include하는지 알 수 없음
+
+순서는 view prelude 가 제일위에
+======================================================
+
+foward 액션태그
+
+액션 태그를 실행하면
+	생성했던 출력 결과는 모두 제거된다.
+존재 원리?근거? 출력버퍼
+
+client from.jsp 요청 = > server from.jsp찾고 액션태그 발견 => to.jsp이동
+
+to.jsp 응답
+
+[redirect랑 다름]
+
+액션태그 밑 코드 실행 X
+리다이렉트는 밑 코드 실행O [콘솔상 찍힌다]
+
+foward[끝까지 다 수행]랑 foward actiontag 다름
+
+forward url => from.jsp 응답url 노출 x
+
+redirect url => second.jsp 응답 url 노출
+======================================================
+
+브라우저 동작 / 서버 동작 루트 다름
+
+구분 기준 어디서 일이 일어나는가
+
+localhost:8080    / localhost:8080/12_10 
+
+request.getContextPath() application root
+
+======================================================
+                                                                       
+java bean [value object[vo],datatransfer object[dto]]
+조건
+기본생성자
+멤버변수
+게터세터
+equals...comparable...
+
+<jsp:useBean id="member" scope="request" class="kr.ac.green.MemberInfo"/>
+	
+	useBean 해주는일 완전히 동일함
+	MemberInfo member=(MemberInfo)request.getAttribute("member");
+	if(member==null){
+		member= new MemberInfo();
+		request.setAttribute("member",member);
+	}
+
+	member.setId("madvirus");
+	member.setName("최범균");
+
+class 자리 type 올 수 있다
+
+	MemberInfo member=(MemberInfo)request.getAttribute("member");
+	if(member==null){
+	멤버라는 이름으로 속성 없으면 예외발생	
+	반드시 이전페이지에서 이름값을 던지는것을 보장하는경우 사용
+	}
+======================================================
+
+==> setProperty 액션태그
+세터가 필수적으로 있어야함
+인트 알아서 형변환 해준다
+	
+<jsp:setProperty name="memberInfo" property="*"/>
+이름이 같은것이 있으면 값을 넣는다
+memberInfo.setId(request.getParameter("id"));
+memberInfo.setName(request.getParameter("name"));
+memberInfo.setEmail(request.getParameter("email"));
+
+<jsp:setProperty name="memberInfo" property="password" value="<%= memberInfo.getId() %>"/>
+memberInfo.setPassword(memberInfo.getId());
+
+
+[param 과 value 한번에 둘 중 하나만 사용 가능]
+<jsp:setProperty name="memberInfo" property="email" param="id"/>
+memberInfo.setEmail(requset.getParameter("id"));
+
+======================================================
+
+
+

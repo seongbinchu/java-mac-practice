@@ -1,0 +1,46 @@
+기본객체(타입) 
+
+스코프
+
+- pageContext page영역
+jsp마다 같음
+
+- request requset영역
+응답이 나갈 때 까지 같은 것[요청한 일이 처리될 때까지 유지]
+
+파라미터 언제까지 사용할 수 있는가?
+
+- session session 영역
+클라이언트(브라우저) 별 하나씩 [사용자가 웹어플리케이션을 쓰는동안 ]
+
+
+
+ex) 사용자인증 ...login
+- application applicaiton 영역
+앱당하나 서버정지시 사라짐
+앱에서 전체적으로 공유해야할 값들
+
+4개인 이유 4개로 jsp 기본속성 처리 커버
+
+같은속성을 공유하진 않음
+
+속성 name,value [string,object]
+기본데이터형 들어갈 수 없음 wrapper class 넣어야하지만
+오터박싱이 되기 때문에 application.setAttribute("num1",3); 가능
+int num = (Integer)application.getAttribute("num1"); get할 때 형변환 필수
+왜 (int)아니고?
+유저 파라미터 [string,string]
+
+http 기반 웹 (state-less)
+유지되는 값이 없다 => 이전페이지 값을 담아둘 수 없다
+=> 가능한것이 얼마 안됨 => 웹프로그래밍언어[jsp] 같은것 사용하게됨 => 상태를 만드는것이 근원목표
+상태가 언제까지 유지되어야하는가에 따라 어떤 객체의 영역에 들어가는지 정해짐
+
+에러페이지 작동요건 출력버퍼
+
+a.jsp
+	- a,b,c,d,e[error],f,g
+출력버퍼d까지 담고 e까지 담을려다가 버리고
+error.jsp로 가서
+	-a',b',c',d'...
+에러페이지 출력버퍼에 a',b',c' 담아서 출력

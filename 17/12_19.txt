@@ -1,0 +1,44 @@
+Servlet
+
+init
+생성[요청이 처음 들어 왔을 때]될 때 1번
+
+service
+그 외에는 service
+요청에 대응하는 객체는 service
+
+=> service 내부 호출된 메소드
+doGet[get방식]
+
+doPost[post방식]
+
+destroy
+
+소멸[서버중지]될 때 1번
+
+url-pattern에 따라 ?파라미터 무엇으로 요청해야 호출되는지 정함
+
+자바파일 변경 자동 = > Servlet web.xml 자동 X
+
+Serlvet web.xl을 통해
+존재하지않는 경로 생성가능 [사용자는 알 수 없다]
+*.naver => .naver하는 모든 요청에 응답
+=>pront-controller에 적용하기 좋음
+
+
+jsp파일과 달리 기본객체없음
+
+
+session , application 구하는법
+HttpSession session = request.getSession();
+ServletContext application = session.getServletContext();
+
+<load-on-startup>1</load-on-startup>
+미리생성
+
+contextParam application 전체공유
+
+webxml 안에 있는 init-param Servlet 안에서만 공유
+
+
+

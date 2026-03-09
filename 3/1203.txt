@@ -1,0 +1,40 @@
+get : 요청파라미터(사용자입력,선택)   => request line(URL)
+post :                                => request body
+
+name = value
+[key 아닌 이유 같은 name 여러개 일 가능성]
+name = doo
+address = busan
+pet = cat
+pet = pig
+
+==>get(url)[읽기 서버측 값 변경 x read] 
+기준 멱등
+post(body)[서버 측 값 변경create,update,deleate]
+
+request.setCharacterEncoding("EUC-KR");
+post일때만 get은 의미없음 파라미터 접근전에 해야함
+파라미터 접근하면 값을 이미 들고오기 때문
+
+body에 해댕하는 내용
+request 기본객체 HttpServletRequest타입 
+
+[선언부에서는 사용못함]
+=>릿과 표현식에는 기본객체 선언과 정의가 자동으로 존재하기 때문에
+=>지역변수로써 메소드 내부코드로 사용됨
+
+JSP = > servlet = > init,service,destroy
+
+릿과 표현식 service로 들어가고 들어갈 때 기본객체 선언정의 자동
+
+getParameter
+getParameterValues name이 여러개 일 경우
+
+Enumeration 이터레이터 비슷
+
+사용자가 전송한  파라미터는 get밖에 할 수 없음 의도가 담겨있기 때문에 set 안됨
+
+get방식 
+a태크 url직접사용 form
+
+서버에 있는 변경해야할 데이터가 존재할 때 리다이렉트

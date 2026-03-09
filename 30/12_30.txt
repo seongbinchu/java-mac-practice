@@ -1,0 +1,410 @@
+/*
+	 * DB type												java type [String도 가능 사용시 형변환]
+	 * 정수[int,TINYINT[작은정수short,byte..],SMALLINT]		int 
+	 * 문자열[char,varchar,text{긴문자열}]					String	
+	 * 실수[DECIMAL,DOUBLE]									double
+	 * 날짜[DATE 년,월,일]									java.sql.Date
+	 * 날짜[DATETIME,TIMESTAMP 년,월,일,시,분,초]			java.sql.Timestamp
+	 * 바이트(BINARY)										byte[] , String 사용 예외
+	 * */
+
+//기본생성자
+	public Car() {}
+	//SELECT,UPDATE
+	public Car(int car_id, String car_model, int car_price, String car_desc) {
+		super();
+		this.car_id = car_id;
+		this.car_model = car_model;
+		this.car_price = car_price;
+		this.car_desc = car_desc;
+	}
+	//INSERT
+	public Car(String car_model, int car_price, String car_desc) {
+		super();
+		this.car_model = car_model;
+		this.car_price = car_price;
+		this.car_desc = car_desc;
+	}
+==================================================================================================
+
+package kr.ac.green;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Vector;
+
+/*
+ * https://mvnrepository.com/ 메이븐 라이브러리 창고
+ * 
+ * WEB-INF application 사용 library lib 폴더 넣으면 
+ * war file 자동 압축 배포 실행 용이
+ * => 실행 가능한지 java resources src libraries check
+ * 
+ * JDBC(Java DataBase Connectivity)
+ * 
+ * 자바에서 데이터베이스 연결하는 방법
+ * 
+ * 1.드라이버 로드 [ 위의 방법] ( lib 경로 WEB-INF SERVER-lib 둘 중 하나 ) ( application 실행할 때 1번만 수행 )
+ * => 와르파일로 자동으로 배포 / 수동으로 일일이 넣어줘야하는 것 불편함
+ * 톰캣 lib 넣으면 수동으로 일일이 안넣어도 되지만 와르파일 자동으로 압축안됨
+ *
+ * 	포트 2개 필요하면 물리적으로 톰캣 2개필요함
+ * 
+ * =>  이클립스에서 물리적 톰캣 1개로 설정 여러개로 적용 가능하게 해줌
+ * 설정 1 server1
+ * 설정 2 server2 생성필요
+ * 
+ * 2. 연결
+ * 3. 질의( SQL )
+ * 4. 자원해제			[1번은 1번만 수행 2=>3=>4 반복]
+ * 		- 클라이언트 session으로 관리함
+ * 		- DB MAX session 정해져있음
+ * 		- 연결하면 session 수 올라가고 해제안하면 session 유지 
+ * 		=> 한 유저가 해제안하고 여러변 접속 => session 증가
+ * 
+ * DAO(Data Access Object) - 1개만 유지(singleton) data 무거운작업
+ * 
+ * */
+
+public class JDBCEx1 {
+	// singleton 만들기
+	//singleton1. 생성자 private
+	
+	private JDBCEx1() {
+		// 드라이버 로드 딱 한번만 수행되야함 => 생성자 한번만 실행됨
+		
+		try{
+			// JDBC 1. 드라이버 로드
+			Class.forName("com.mysql.jdbc.Driver");
+			// mysql.jdbc 드라이버 로드 검색 시 나옴 드라이버 마다 다름
+		}catch(ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// singleton2. 자신 type의 객체생성(static + final)
+	// final 안붙이면 null로 만들어버릴 수 있음
+	private static final JDBCEx1 INSTANCE = new JDBCEx1();
+	
+	
+	// singleton3. getter 구현 (static)
+	public static JDBCEx1 getInstance() {
+		return INSTANCE;
+	}
+	// => 해당 객체 application 상 1개 존재
+	
+	public Connection connect() {
+		// import =>java.sql.Connection
+		// JDBC 2. 연결 => 연결과 자원해제 반복됨 = > 재활용가능하게 생성[public]
+		// connection 객체 DB와의 연결 나타내는 객체
+		Connection con = null;
+		
+		try {
+			con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/test",//DB,version마다 다름 검색 시 나옴
+					"root", 
+					"1234");
+			System.out.println("연결성공");
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		// CLass.forName() 드라이버 등록시 DriverManager을 사용해서 연결을 가져올 수 있음
+		
+		return con;
+	}
+	
+	// JDBC 4.자원해제
+	public void disconnection(Connection con) {
+		try {
+			con.close();
+			System.out.println("자원해제 완료");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	// JDBC 3.질의(INSERT)
+	public int insert(Connection con,Car car) {
+		
+		// Connection,Statement... interface => why 객체생성 가능
+		// 구현체는 DB OR WAS 가 담당[JDBC Driver]
+		// => DB or WAS 가 바껴도 인터페이스 기준으로 코딩했기 때문에 코드 변경 필요X
+		
+		// int 리턴이유 추가된 row 수 
+		// 파라미터 2가지 Connection 객체 및 Java Bean
+		// 현재 car_model,car_price,car_desc 레코드 한줄 추가하기 때문에 성공하면 1 리턴
+		int result = 0;
+		//Statement 질의기능을 가진 자바객체
+		// excuteUpdate(sql) => INSERT,UPDATE,DELETE 데이터 변경하는것
+		// excuteQuery		 => SELECT 
+		
+		Statement stmt = null;
+		// INSERT INTO car (car_model,car_price,car_desc) VALUES('sonata',3000,'not bad');
+		/*String sql = "INSERT INTO car (car_model,car_price,car_desc) VALUES"
+				+ "('"+car.getCar_model()+"','"+car.getCar_price()+"','"+car.getCar_desc()+"')";
+				드러운방법
+				*/
+		String sql = String.format(
+				"INSERT INTO car (car_model,car_price,car_desc) VALUES('%s',%d,'%s')",
+				toEn(car.getCar_model()),car.getCar_price(),toEn(car.getCar_desc())
+		);
+		
+		try {
+			stmt = con.createStatement();
+			result = stmt.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close(stmt);
+		}
+				
+		return result;
+		
+		// stmt 질의 후 닫아줘야함
+		// con 질의 여러개 insert,update,delete ... 할 수 있으니 끝나면 닫아주기
+	}
+	
+	// JDBC 3 질의 DELETE
+	public int delete(Connection con , int car_id) {
+		int result = 0;
+		Statement stmt = null;
+		String sql = "DELETE FROM car WHERE car_id =" + car_id;
+
+		try {
+			stmt = con.createStatement();
+			result = stmt.executeUpdate(sql);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close(stmt);
+		}
+		
+		return result;
+	}
+	
+	public int update(Connection con , Car car) {
+		int result = 0;
+		Statement stmt = null;
+		
+		String sql = String.format("UPDATE car SET car_model='%s',car_price=%d,car_desc='%s' WHERE car_id=%d"
+, toEn(car.getCar_model()),car.getCar_price(),toEn(car.getCar_desc()),car.getCar_id());
+		try {
+			stmt = con.createStatement();
+			result = stmt.executeUpdate(sql);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally{
+			close(stmt);
+		}
+		return result;
+		
+	}
+	
+	public Vector<Car> getAll(Connection con){
+		Vector<Car> list = new Vector<Car>();
+		Statement stmt = null;
+		
+		//SELECT 문의 결과 담는 객체 table같이 생김
+		ResultSet rs = null;
+		String sql = "SELECT * FROM car";
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(sql);
+			while(rs.next()) {
+				// rs.next  => table 헤더에서 시작[car_id...] 다음 줄이 존재하는가 ? => true => 한줄 내려감[커서이동]
+				int car_id = rs.getInt("car_id");
+				String car_model = toKor(rs.getString("car_model"));
+				int car_price = rs.getInt("car_price");
+				String car_desc = toKor(rs.getString("car_desc"));
+				
+				Car car = new Car(car_id,car_model,car_price,car_desc);
+				list.add(car);
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close(rs);
+			close(stmt);
+		}
+		return list;
+	}
+	
+	private void close(Statement stmt) {
+		try {
+			stmt.close();
+		}catch(Exception e) {}
+	}
+	
+	private void close(ResultSet rs) {
+		try {
+			rs.close();
+		}catch(Exception e) {}
+	}
+	
+	public Car findById(Connection con,int car_id) {
+		Car car = new Car();
+		Statement stmt = null;
+		
+		String sql="SELECT * FROM car WHERE car_id ="+car_id;
+		ResultSet rs = null;
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(sql);
+			if(rs.next()) {
+				car = rowMapping(rs);
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			close(rs);
+			close(stmt);
+		}
+		return car;
+	}
+	
+	private Car rowMapping(ResultSet rs) throws SQLException{
+		int car_id = rs.getInt("car_id");
+		String car_model = rs.getString("car_model");
+		int car_price = rs.getInt("car_price");
+		String car_desc = rs.getString("car_desc");
+		
+		Car car = new Car(car_id,car_model,car_price,car_desc);
+		return car;
+	}
+	// INSERT,UPDATE : EUC-KR -> 8859_1
+	
+	private String toEn(String kor) {
+		String en = null;
+		try {
+			en = new String(kor.getBytes("EUC_KR"),"8859_1");
+		}catch(Exception e) {}
+		return en;
+	}
+	// SELECT : 8859_1 => EUC-KR
+	private String toKor(String en) {
+		String kor = null;
+		try {
+			kor = new String(en.getBytes("8859_1"),"EUC-KR");
+		}catch(Exception e) {}
+		return kor;
+	}
+	
+	public static void main(String[] args) {
+		JDBCEx1 dao = JDBCEx1.getInstance();
+		Connection con = dao.connect();
+		
+		//질의 INSERT
+		Car car = new Car("테스트2",7000,"test");
+		int result = dao.insert(con,car);
+		if(result == 1) {
+			System.out.println("insert 성공");
+		}else {
+			System.out.println("insert 실패");
+		}
+		dao.disconnection(con);
+		
+		/* 질의 DELETE
+		int result = dao.delete(con,8);
+		if(result == 1) {
+			System.out.println("delete 성공");
+		}else {
+			System.out.println("delete 실패");
+		}
+		dao.disconnection(con);*/
+		
+		/* 질의 UPDATE
+		Car car1 = new Car(7,"ninza",1500,"goooood");
+		int result = dao.update(con, car1);
+		if(result == 1) {
+			System.out.println("update 성공");
+		}else {
+			System.out.println("update 실패");
+		}
+		dao.disconnection(con);*/
+		
+		// 질의 SELECT
+		//Vector<Car> list = dao.getAll(con);
+		//System.out.println(list);
+		//dao.disconnection(con);
+		
+		//System.out.println(dao.findById(con,11));
+		//dao.disconnection(con);
+	}
+}
+
+
+===========================================
+
+public interface MySqlConstants {
+	String DRIVER = "com.mysql.jdbc.Driver";
+	
+	String DB_URL = "jdbc:mysql://localhost:3306/test";
+	String DB_ID = "root";
+	String DB_PW = "1234";
+	
+	String INSERT = "INSERT INTO food(fname,fkind,fplace,fcomment,fpassword) " +
+		    "VALUES('%s','%s','%s','%s','%s')";
+	
+	String GET_ALL = "SELECT * FROM food ORDER BY fnum DESC";
+	
+	String GET_BYNUM = "SELECT * FROM food WHERE fnum = %d";
+}
+
+==============================================================
+
+class TestMySqlFoodDao{
+	private static MySqlFoodDao dao;
+	private Connection con;
+	
+	@BeforeAll
+	static void setUpBeforeClass() throws Exception {
+		dao = MySqlFoodDao.getInstance();
+	}
+
+	@AfterAll
+	static void tearDownAfterClass() throws Exception {
+	}
+
+	@BeforeEach
+	void setUp() throws Exception {
+		con = dao.connect();
+		con.setAutoCommit(false);
+	}
+
+	@AfterEach
+	void tearDown() throws Exception {
+		dao.disconnect(con);
+	}
+
+	@Test
+	void testInsertFood() {
+		Food food = new Food("떡볶이","bunsik","엽기떡볶이","매워요","1234");
+		int result = dao.insertFood(con,food);
+		assertEquals(1, result);
+		if(result == 1) {
+			//반영
+			try {
+				con.commit();
+			}catch(SQLException e) {
+				try {
+					con.rollback();
+				}catch(SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	@Test
+	void testGetAll() {
+		Food[] arr = dao.getAll(con);
+		assertEquals(1,arr.length);
+	}
+	@Test
+	void testGetFoodByNum() {
+		Food food = dao.getFoodByNum(con,2);
+		assertNotNull(food);
+	}
+}

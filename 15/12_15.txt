@@ -1,0 +1,94 @@
+참조되고 있는 외래키 attribute 삭제 불가
+=> 삭제하고싶으면 참조하고 있는 테이블 attribute 삭제하고 삭제
+
+'abc' => char(5)	=> a ㅣb ㅣ c ㅣ  ㅣ  ㅣ	2칸 비워둠		[공간단편화,낭비] 
+=> 값이 변경이 빈번한 것
+	varchar(5) 	=> a ㅣ b ㅣ c ㅣ  		3칸으로 줄여버림 가변	[]
+=> 값이 고정적인 것
+
+==========================================================================================
+
+page session = "true" 기본값 트루 
+
+session
+
+세션생성시간: 클라이언트가 어플리케이션으로 첫 요청을 날린 시간
+최근접근시간: 최근 요청 시간
+
+세션ID : <%= session.getId() 
+
+time.setTime(session.getCreationTime());
+
+세션 생성기간:<%=formatter.format(time)
+
+time.setTime(session.getLastAccessedTime());
+마지막 접근시간 getLastAccessedTime	=> 클라이언트가 마지막으로 요청보낸시간이랑 일치
+
+최근 접근시간:<%=formatter.format(time) 
+
+쿠키 JSessionID => 클라이언트 관리하는 세션ID 클라이언트가 항상 보내준다
+
+세션 종료 session.invalidate();
+- invalidate 해도 해당 클라이언트에서는 id 같다=> 사용은 못함[속성에 접근 X]
+=> 다음 요청에서 새로운 세션 할당됨
+
+
+invalidate 후 바로 세션 얻어오는 방법
+=> invalidate 후 세션에 속성을 넣어 사용할려면 새로운 요청[세션만들기] 후 setAttribute
+해야한다 번잡하기 때문에
+session = request.getSession => invalidate 안됐으면 기존 세션 접근
+invalidate 됐으면 새로운 세션 
+
+@Overroading
+request.getSession(flag : boolean);
+true = > getSession();
+false = > session 객체를 구한다. invalidate 됐다면 null 
+
+? request,response was constructor
+
+서버측에서 session에 타임아웃 설정할 수 있음
+=> 브라우저가 꺼질 때 까지 유지돼기 때문에 오버플로우 가능서있기 때문
+기준 getLastAccessedTime
+설정방법
+1 web.xml
+<session-config>
+	<session-timeout>50</session-timeout>
+</session-config>
+마지막요청을 기준으로 50분동안 요청없으면 삭제
+
+=> web.xml 더 편하고 사용 
+
+2 <%	session.setMaxInactioveInterval(60*60); %>
+60초 * 60 = > 마지막요청을 기준으로 한시간동안 사용 가능
+
+session.removeAttribute("MEMBERID");
+말고 invalidate 보통 사용 하나씩 제거하면 실수 => 불확실할 수 있고
+데이터 변경 시 문제 발생 가능
+
+session application 단위로 할당됨
+
+
+
+
+var
+
+obj
+
+action 안들어간이유
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

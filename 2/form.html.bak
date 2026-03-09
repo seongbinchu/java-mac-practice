@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+  <form name="form1 method="post" action="nothingcgi">
+  ID : <input type="text" name="id" value="id" readonly="readonly">읽기전용
+  <br>
+  Password : <input type="password" name="pw" disabled="disabled">비활성화
+  <br>
+  placeholder : <input type="text" name="id" value="" placeholder="닉네임">
+  <br>
+  남기고 싶은 글<br>
+  <textarea cols="30" rows="3" name="content"></textarea>
+  <br>
+  당신의 성별은?[라디오버튼 이름이 같으면 하나만 선택 실제로 전송 value]<br>
+  <input type="radio" name="sex" value="male" checked="chechked">남자
+  <input type="radio" name="sex" value="female" id="female"> <label for="female">여자</label>해당레이블은 id femal을 위해 존재
+
+	<br>
+  취미<br>
+  <input type="checkbox" name="hobby" value="독서"> 독서
+  <input type="checkbox" name="hobby" value="여행"> 여행
+  <input type="checkbox" name="hobby" value="음악감상"> 음악감상
+  <input type="checkbox" name="hobby" value="영화" title="말풍선"> 영화
+  <br>
+  당신이 구매하고 싶은 차종은?[dropdown]
+  <br>
+  <select name="car">
+  <option value="sonata">소나타</option>
+  <option value="에쿠스">에쿠스</option>
+  <option value="아반떼">아반떼</option>
+  </select>
+  <br>
+  당신이 구매하고 싶은 차종은? [list]
+  <br>
+  <select name="car" size="3" multiple="multiple">
+  <option value="sonata">소나타</option>
+  <option value="에쿠스">에쿠스</option>
+  <option value="아반떼">아반떼</option>
+  </select>
+
+  <input type="hidden" name="start" value="1">
+	<br>
+  <input type="file" name="upload">
+	<br>
+	<input type="submit" value="글쓰기">
+	<br>
+	<input type="reset" value="취소">
+	<br>
+	<input type="button" value="됨?" onclick="clickButton()">
+
+  </form>
+	
+	<script>
+		function clickButton(){
+			alert("됨");
+		}
+	</script>
+ </body>
+</html>
+
+readonly 전송가능 disabled 전송불가
+value속성에 한글적지마라 소나타 =>sonata
+form안에있는 내용을 전송하는 것 submit
